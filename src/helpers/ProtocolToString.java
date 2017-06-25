@@ -10,7 +10,50 @@ package helpers;
  * 
  */
 
+/**
+* 0 : Unknown
+* 1 : Scene Block 	   (SCENENR(n))
+* 2 : Start Block 	   (STRBLOCK)
+* 3 : End Block  	   (ENDBLOCK)
+* 4 : CRC Begin Block (CRCBGNBL)
+* 5 : CRC End Block   (CRCENDBL)
+**/
+
 public class ProtocolToString {
+	
+	private CompareProtocolBlocks compare = new CompareProtocolBlocks();
+	
+	public String getProtocolBlock(byte data[]){
+		String result = new String();
+		
+		int option = compare.compare(data);
+		
+		switch(option){
+			case 0:
+				result = "Unknown";
+				break;
+			case 1:
+				result = "Scene Block: " + data[7] ;
+				break;
+			case 2:
+				result = "Start Blockn";
+				break;
+			case 3: 
+				result = "End Block";
+				break;
+			case 4:
+				result = "CRC Begin Block";
+				break;
+			case 5:
+				result = "CRC End Block";
+				break;
+		}
+		
+		return result;
+	}
+	
+	
+	
 	
 	public String getProtocolString(byte buffer[])
 	{

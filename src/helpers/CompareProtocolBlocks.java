@@ -13,7 +13,7 @@ public CompareProtocolBlocks(){
  * Makes a comparison based on the contents 
  * of the supplied bytes in the data[]
  * 
- * 0 : Undefined
+ * 0 : Unknown
  * 1 : Scene Block 	   (SCENENR(n))
  * 2 : Start Block 	   (STRBLOCK)
  * 3 : End Block  	   (ENDBLOCK)

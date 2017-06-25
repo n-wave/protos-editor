@@ -61,22 +61,15 @@ public class ProtocolParser {
 				parseEndBlock();			
 			}
 			byteArraySize = byteArray.size();
-			System.out.println("byteArray size :" + byteArraySize);
+			//System.out.println("byteArray size :" + byteArraySize);
 			
-			/** TODO
-			 * 
-			 *  Calculate crc and parse the last 32 byte chunk
-			 *  Encapsulate in one function and add zero padding
-			 *  to the remaining bytes.
-			 * 
-			 */
 			
 			this.parseCyclicRedundancyCheck();
 			
 			/** Total Number of Bytes should be 1984 at this point**/
 			
-			byteArraySize = byteArray.size();
-			System.out.println("byteArray size with CRC :" + byteArraySize);
+			//byteArraySize = byteArray.size();
+			//System.out.println("byteArray size with CRC :" + byteArraySize);
 			
 		} catch(Exception e){
 			System.err.println("Error Ocurred in ProtocolParser void parse(DataContainer data");
@@ -624,12 +617,12 @@ public class ProtocolParser {
 	}
 	
 	public String toStringTestEight(){
-		String byteArrayString = new String("toStringTest Eight");
+		String byteArrayString = new String("toStringTest Eight \n");
 		int nrOfScenes = 4;
 		int byteArrayIndex = 0;
 		int size = byteArray.size();
 		
-		System.out.print("byteArray size : " + size);
+		byteArrayString += "byteArray size with CRC : " + size + "\n";
 
 		return byteArrayString;
 	}
@@ -693,7 +686,6 @@ public class ProtocolParser {
 		byteArray.add((byte)0x4C);  //L
 	}
 	
-	/** 536843712 **/
 	public long calculateCyclicRedundancyCheck(byte[]data){
 		long crc = ~0L;
 		

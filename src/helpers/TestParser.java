@@ -394,8 +394,9 @@ public class TestParser {
 		try{
 	
 		parser.parsePreset(tmpPreset);
-		
-
+	    byteArrayString = parser.toStringTestEight();
+	    
+	    System.out.println(byteArrayString);
 		
 		}catch(Exception e){
 			System.err.println("Error Ocurred in TestParser testEight(Preset preset)");
