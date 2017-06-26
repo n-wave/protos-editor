@@ -36,16 +36,16 @@ public class ProtocolToString {
 				result = "Scene Block: " + data[7] ;
 				break;
 			case 2:
-				result = "Start Blockn";
+				result = "  Start Block";
 				break;
 			case 3: 
-				result = "End Block";
+				result = "   End Block";
 				break;
 			case 4:
 				result = "CRC Begin Block";
 				break;
 			case 5:
-				result = "CRC End Block";
+				result = " CRC End Block";
 				break;
 		}
 		

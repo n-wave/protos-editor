@@ -257,7 +257,7 @@ public class ControlChangeFadeComponent extends Composite {
 			
 			start %= 128;
 			hold %= 128;
-			end &= 128;
+			end %= 128;
 		
 			controlChangeFadeData.setStartValue(start);
 			controlChangeFadeData.setHoldValue(hold);

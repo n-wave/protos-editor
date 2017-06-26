@@ -28,6 +28,16 @@ public class Scene extends Controller {
 	}
 
 	@Override
+	public void setDataStructure(DataStructure[] data) {
+		try{
+			sceneData = data;
+		} catch (Exception e){
+			System.err.println("Error ocurred setting DataStructure");
+			e.printStackTrace(System.err);
+		}
+	}
+	
+	@Override
 	public int getNumberOfOptions() {
 		// TODO Auto-generated method stub
 		return numberOfOptions;
@@ -48,10 +58,13 @@ public class Scene extends Controller {
 	@Override
 	public Composite getGuiComponent(Composite parent, int componentIndex) {
 		SceneComponent sceneComponent = null;
+		optionIndex = componentIndex;
+		
 		
 		try{
 			sceneComponent = new SceneComponent(parent, SWT.NONE, sceneData[0]);
 			sceneComponent.enableProgramChangeBlock(optionIndex);
+			sceneComponent.setOption(optionIndex);
 			
 		} catch (Exception e){
 			System.err.println("Error ocurred while creating Scene Component");
@@ -69,16 +82,6 @@ public class Scene extends Controller {
 	@Override
 	public String[] getOptionList() {
 		return optionList;
-	}
-
-	@Override
-	public void setDataStructure(DataStructure[] data) {
-		try{
-			sceneData = data;
-		} catch (Exception e){
-			System.err.println("Error ocurred setting DataStructure");
-			e.printStackTrace(System.err);
-		}
 	}
 
 	@Override

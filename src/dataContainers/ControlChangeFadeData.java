@@ -83,39 +83,39 @@ public class ControlChangeFadeData extends DataStructure {
 	}
 	
 	public void setHoldValue(int holdValue){
-		data[5] = holdValue;
+		data[6] = holdValue;
 	}
 	
 	public int getHoldValue(){
-		return data[5];
+		return data[6];
 	}
 	
 	public void setEndValue(int endValue){
-		data[6] = endValue;
+		data[7] = endValue;
 	}
 
 	public int getEndValue(){
-		return data[6];
+		return data[7];
 	}
 	
 	public void setFadeInValue(int fadeIn){
 		if(fadeIn>=0 && fadeIn <= 2000){
-			data[7] = fadeIn;
+			data[8] = fadeIn;
 		}
 	}
 	
 	public int getFadeInValue(){
-		return data[7];
+		return data[8];
 	}
 	
 	public void setFadeOutValue(int fadeOut){
 		if(fadeOut >= 0 && fadeOut <= 2000){
-			data[8] = fadeOut;
+			data[9] = fadeOut;
 		}
 	}
 	
 	public int getFadeOutValue(){
-		return data[8];
+		return data[9];
 	}
 	
 

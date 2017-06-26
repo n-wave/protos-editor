@@ -39,6 +39,7 @@ public class MainWindow {
 	private ToolItem openItem;
 	private ToolItem saveItem;
 	private ToolItem uploadItem;
+	private ToolItem printItem;
 	
 	private TabFolder tabFolder;
 	private String[] sceneTabNames = {
@@ -57,6 +58,7 @@ public class MainWindow {
 	/** Test Parser **/
 	
 	TestParser testParser = new TestParser();
+
 	
 	/** Test Serial Communication **/;
 	
@@ -153,6 +155,9 @@ public class MainWindow {
 			
 		uploadItem = new ToolItem(toolBar, SWT.NONE);
 		uploadItem.setText("upload");
+		
+		printItem = new ToolItem(toolBar, SWT.NONE);
+		printItem.setText("print");
 	}
 	
 	
@@ -307,44 +312,9 @@ public class MainWindow {
 	uploadItem.addSelectionListener(new SelectionAdapter(){
 		@Override
 		public void widgetSelected(SelectionEvent event){
-			String test = new String("**All Presets Data** \n" + 
-									 "--------------------" + "\n");		
+		
 			try{
-				//SerialCommunication serial = new SerialCommunication();
-				//Thread serialThread = new Thread(serial, "Serial");
-				//String ports[] = serial.getPorts();		
-				//System.out.println("COMM Ports : " + ports.length);
-				/*
-				for(int i=0; i<ports.length; i++){
-					System.out.println("COMM Port : " + ports[i]);
-				}
-				*/
-				//System.out.println(serial.openPort(ports[0]));
-				
-			//	thread.start();
-			//	serial.enablePolling();
-			//	System.out.println("Sending Start Communication Block");
-			//	Thread.sleep(1000);
-			//	serial.sendStartCommunicationBlock();
 	
-			
-				/**
-				PrintWriter out = new PrintWriter("PresetValues.txt");
-				test += getStringValues() + "\n";
-				
-				out.println(test);
-				out.close();
-				**/
-				
-				//testParser.serialCommunicationTestOne();
-				//testParser.serialCommunicationTestTwo();
-				//testParser.serialCommunicationTestFour();
-				
-				for(int i=0; i < numberOfScenes; i++){
-					preset.setDataContainer(scenes[i].getDataContainer(), i);
-				}
-				
-				testParser.testEight(preset);
 				
 				
 			} catch(Exception e){
@@ -355,6 +325,33 @@ public class MainWindow {
 		}
 		
 	});	
+	
+	/** Print contents of dataStructures in preset to the console **/
+	
+	printItem.addSelectionListener(new SelectionAdapter(){
+		@Override
+		public void widgetSelected(SelectionEvent event){
+			try{
+				String test = new String("**All Presets Data** \n" + 
+						 "--------------------" + "\n");
+				
+				System.out.println(test);
+				
+				Preset tmpPreset = new Preset("tmp");
+				TestParser testVar = new TestParser();
+				
+				for(int i=0; i < numberOfScenes; i++){
+					tmpPreset.setDataContainer(scenes[i].getDataContainer(), i);
+				}
+				
+				testVar.testEight(tmpPreset);		
+				
+			} catch(Exception e){
+				System.err.println("Error occurred in MainWindow printItem.addSelecetionListener(new SelectionAdapter(");
+				e.printStackTrace(System.err);
+			}
+		}
+	});
 	
 	shell.addDisposeListener(new DisposeListener(){
 		@Override

@@ -44,10 +44,10 @@ public class ProtocolParser {
 				DataContainer data = tmpPreset.getDataContainer(i);
 				DataStructure tmp[] = data.getActiveDataStructures();
 					
-				/** 
+				/* 
 				 * First entry in dataStructure 
 				 * Array belongs to the Scene 
-				 **/
+				 */
 				
 				parseSceneBlock(i); 
 				
@@ -56,31 +56,17 @@ public class ProtocolParser {
 					parseProtocol(dataArray);
 							
 				}
-				
-				System.out.println("Parsing Preset data, Scene : " + i);			
+					
 				parseEndBlock();			
 			}
 			byteArraySize = byteArray.size();
-			//System.out.println("byteArray size :" + byteArraySize);
-			
-			
-			this.parseCyclicRedundancyCheck();
-			
-			/** Total Number of Bytes should be 1984 at this point**/
-			
-			//byteArraySize = byteArray.size();
-			//System.out.println("byteArray size with CRC :" + byteArraySize);
+				
+			parseCyclicRedundancyCheck();
 			
 		} catch(Exception e){
 			System.err.println("Error Ocurred in ProtocolParser void parse(DataContainer data");
 			e.printStackTrace(System.err);
-		}
-		/**
-		for(int i=0; i<byteArray.size(); i++){
-			System.out.println("Index [" + i + "] : " + Byte.toUnsignedInt(byteArray.get(i)));
-		}
-		**/
-		
+		}	
 	}
 	
 	public void parseProtocol(int data[]){
@@ -110,7 +96,7 @@ public class ProtocolParser {
 				break;
 			case 0xEA:
 				sceneDataParser(data);
-				/** 
+				/* 
 				 * After the Scene the controller 
 				 * Start Block is parsed and followed
 				 * by the controller data.
@@ -132,10 +118,7 @@ public class ProtocolParser {
 			index++;
 		}
 		
-		/**
-		 *  Zero Padding 
-		 */
-		
+		/*  Zero Padding */
 		while(index < 16)
 		{
 			byteArray.add((byte) 0x00);
@@ -182,26 +165,6 @@ public class ProtocolParser {
 				byte tmp = (byte)data[i];
 				byteArray.add(tmp);
 			}
-
-			/** converted to 14 Bit 
-			 *  2 Bytes storing 
-			 *  7Bit nr each
-			 *  
-			 *  data supplied from gui
-			 *  
-			 * 	0xF0, //Start
-			 *	0xE2, //ID
- 			 *	4,	   //channel
- 			 *	0,    //pitch
-			 *	0,    //velocity
-			 *	0,	   //link/static
-			 *	1,	   //Resolution
-			 *	0,	   //CC number
-			 *  0,    //top value
-			 *	0,	   //bottom value
-			 *	0xFF  //end		
-			 *  
-			 */
 			
 			for(int i=8; i<10; i++){
 				int value = data[i] << 1;
@@ -582,7 +545,7 @@ public class ProtocolParser {
 				} 
 			
 				/** 
-				 *  Bufferindex is 6 at this point 
+				 *  Buffer index is 6 at this point 
 				 *  Incremented in the next while loop
 				 *  cause we didn't find the end Block
 				 */
@@ -617,13 +580,107 @@ public class ProtocolParser {
 	}
 	
 	public String toStringTestEight(){
-		String byteArrayString = new String("toStringTest Eight \n");
-		int nrOfScenes = 4;
+		String byteArrayString = new String();
 		int byteArrayIndex = 0;
 		int size = byteArray.size();
+		boolean run = true;
 		
-		byteArrayString += "byteArray size with CRC : " + size + "\n";
+		byteArrayString += " Bytes : " + size + "\n\n";
 
+		
+		while(run){
+			int bufferIndex = 0;
+			int protocolOption = 0;
+			byte buffer[] = new byte[16];
+			
+			
+			while(bufferIndex < 8)
+			{
+				buffer[bufferIndex] = byteArray.get(byteArrayIndex);
+				bufferIndex++;
+				byteArrayIndex++;	
+			}
+				
+			protocolOption = compare.compare(buffer);
+			
+			/**
+			 * if Protocol Option return a value between
+			 * of 0 no protocolBlock has been found 
+			 * keep filling the buffer
+			 * 
+			 */
+			
+			if(protocolOption == 0)
+			{	
+				while(bufferIndex < 16){
+					buffer[bufferIndex] = byteArray.get(byteArrayIndex);
+					bufferIndex++;
+					byteArrayIndex++;
+				}
+				
+				byteArrayString += protocolToString.getProtocolString(buffer) + "\n";
+			}
+			
+			/**
+			 * If protocol Option returns a value between 
+			 * 1 & 3 the next blocks have occurred.
+			 * 
+			 * 1 : Scene Block 	   (SCENENR(n))
+			 * 2 : Start Block 	   (STRBLOCK)
+			 * 3 : End Block  	   (ENDBLOCK)
+			 */
+			
+			if(protocolOption >= 1 && protocolOption <= 3){
+				byteArrayString += "---------------\n";
+				byteArrayString += protocolToString.getProtocolBlock(buffer) + "\n";
+				byteArrayString += "---------------\n";
+			}
+				
+			/**
+			 * 
+			 * If protocolOption is 4 CRC BeginBlock has been found 
+			 * 
+			 * 
+			 */
+			
+			if(protocolOption == 4){
+				byteArrayString += "---------------\n";
+				byteArrayString += protocolToString.getProtocolBlock(buffer) + "\n";
+				byteArrayString += "---------------\n";
+				
+				bufferIndex = 0;
+				
+				while(bufferIndex <4){
+					buffer[bufferIndex] = byteArray.get(byteArrayIndex);				
+					bufferIndex++;
+					byteArrayIndex++;
+				}
+				
+				bufferIndex = 0;
+				
+				for(int i=0; i<4; i++){
+					byteArrayString += "byte[" + i + "] : " + buffer[i] + "\n";
+				}
+				
+				while(bufferIndex < 8){
+					buffer[bufferIndex] = byteArray.get(byteArrayIndex);
+					bufferIndex++;
+					byteArrayIndex++;
+				}
+				
+				protocolOption = compare.compare(buffer);
+				
+				if(protocolOption == 5){
+					byteArrayString += "---------------\n";
+					byteArrayString += protocolToString.getProtocolBlock(buffer) + "\n";
+					byteArrayString += "---------------\n";
+					run = false;
+				}
+				
+			}	
+		}
+		
+		
 		return byteArrayString;
 	}
 	

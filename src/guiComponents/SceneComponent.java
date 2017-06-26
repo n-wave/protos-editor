@@ -326,9 +326,13 @@ public class SceneComponent extends Composite {
 			}
 			
 		} catch(Exception e){
-			System.err.println("Error ocurred in SceneComponent");
+			System.err.println("Error occurred in SceneComponent");
 			e.printStackTrace(System.err);
 		}
+	}
+	
+	public void setOption(int option){
+		sceneData.setOption(option);
 	}
 	
 	@Override
@@ -368,7 +372,6 @@ public class SceneComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int bank = bankOneSpinner.getSelection();
-				System.out.println(bank);
 				sceneData.setBank(bank, 1);
 			}
 		});

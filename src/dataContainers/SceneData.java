@@ -37,6 +37,12 @@ public class SceneData extends DataStructure {
 		return data;
 	}
 	
+	public void setOption(int option){
+		if(option >= 0 && option <= 4){
+			data[2] = option;
+		}
+	}
+		
 	public void setChannel(int channel, int number){
 		if(channel > 0 && channel <= 16 && number > 0 && number <= 4){	
 			switch(number){

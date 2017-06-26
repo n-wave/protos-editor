@@ -72,8 +72,13 @@ public class DataContainer implements Serializable {
 		DataStructure tmp[] = new DataStructure[size];
 				
 		try{
-			for(int i=0; i<size; i++){
+			
+			/** Scene only has 1 option on index 0 **/
+			tmp[0] = dataStructures[0][0];
+			
+			for(int i=1; i<size; i++){
 				int currentOption = options[i];
+
 				tmp[i] = dataStructures[i][currentOption];
 			}
 				

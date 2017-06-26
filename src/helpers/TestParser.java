@@ -386,20 +386,15 @@ public class TestParser {
 		Preset tmpPreset = new Preset("tmp");
 		tmpPreset = preset;
 		
-		DataContainer data = tmpPreset.getDataContainer(0);
-		DataStructure structure[] = data.getActiveDataStructures();
-		
-		
 
 		try{
-	
 		parser.parsePreset(tmpPreset);
 	    byteArrayString = parser.toStringTestEight();
 	    
 	    System.out.println(byteArrayString);
 		
 		}catch(Exception e){
-			System.err.println("Error Ocurred in TestParser testEight(Preset preset)");
+			System.err.println("Error occurred in TestParser testEight(Preset preset)");
 			e.printStackTrace(System.err);
 		}
 		
@@ -410,9 +405,11 @@ public class TestParser {
 	}
 
 	public void testParserFullPreset(Preset preset){
+		Preset tmpPreset = new Preset("tmp");
+		tmpPreset = preset;
 		String byteArrayString = new String();
 		int length = preset.getLength();
-		parser.parsePreset(preset);
+		parser.parsePreset(tmpPreset);
 		byteArrayString = parser.toStringTestEight();
 		
 		System.out.println(byteArrayString);
