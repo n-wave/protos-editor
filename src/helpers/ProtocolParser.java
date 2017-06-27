@@ -13,10 +13,14 @@ public class ProtocolParser {
 	private CompareProtocolBlocks compare = new CompareProtocolBlocks();
 	
 	private int crcTable[] = {
-							 	0x00000000, 0x1db71064, 0x3b6e20c8, 0x26d930ac,
-							 	0x76dc4190, 0x6b6b51f4, 0x4db26158, 0x5005713c,
-							 	0xedb88320, 0xf00f9344, 0xd6d6a3e8, 0xcb61b38c,
-							 	0x9b64c2b0, 0x86d3d2d4, 0xa00ae278, 0xbdbdf21c
+							 	0x00000000, 0x1db71064, 
+							 	0x3b6e20c8, 0x26d930ac,
+							 	0x76dc4190, 0x6b6b51f4, 
+							 	0x4db26158, 0x5005713c,
+							 	0xedb88320, 0xf00f9344, 
+							 	0xd6d6a3e8, 0xcb61b38c,
+							 	0x9b64c2b0, 0x86d3d2d4, 
+							 	0xa00ae278, 0xbdbdf21c
 							  };
 	
 	
@@ -26,14 +30,26 @@ public class ProtocolParser {
 	}
 	
 	public byte[] getByteArray(){
-		//Byte byteData[] = byteArray.toArray(new Byte[byteArray.size()]);
+		int size = byteArray.size();
+		byte data[] = new byte[size];
 		
-		return null;
+		try{
+			for(int i=0; i<size; i++){
+				data[i] = byteArray.get(i);
+			}
+		
+		} catch(Exception e){
+			System.err.println("Error occurred in ProtocolParser getByteArray()");
+			e.printStackTrace(System.err);
+		}
+		
+		
+		
+		return data;
 	}
 	
 	public void parsePreset(Preset preset){
 		Preset tmpPreset = new Preset("tmp");
-		int byteArraySize = 0;
 		tmpPreset = preset;
 		
 		
@@ -59,17 +75,16 @@ public class ProtocolParser {
 					
 				parseEndBlock();			
 			}
-			byteArraySize = byteArray.size();
-				
+					
 			parseCyclicRedundancyCheck();
 			
 		} catch(Exception e){
-			System.err.println("Error Ocurred in ProtocolParser void parse(DataContainer data");
+			System.err.println("Error occurred in ProtocolParser void parse(DataContainer data");
 			e.printStackTrace(System.err);
 		}	
 	}
 	
-	public void parseProtocol(int data[]){
+	private void parseProtocol(int data[]){
 		int optionId = data[1];
 		
 		switch(optionId){
@@ -107,7 +122,7 @@ public class ProtocolParser {
 	}
 	
 		
-	public void programChangeParser(int data[]){
+	private void programChangeParser(int data[]){
 		int size = data.length;
 		int index = 0;
 		
@@ -126,7 +141,7 @@ public class ProtocolParser {
 		}
 	}
 	
-	public void noteVelocityParser(int data[]){
+	private void noteVelocityParser(int data[]){
 		int size = data.length; 
 		int index = 0;
 		
@@ -143,7 +158,7 @@ public class ProtocolParser {
 
 	}
 	
-	public void noteControlChangeParser(int data[]){
+	private void noteControlChangeParser(int data[]){
 		int resolution = data[6];
 	
 		if(resolution == 0){
@@ -184,7 +199,7 @@ public class ProtocolParser {
 		}	
 	}
 	
-	public void pitchBendParser(int data[]){
+	private void pitchBendParser(int data[]){
 		int size = data.length; 
 		int index = 0;
 		
@@ -200,7 +215,7 @@ public class ProtocolParser {
 		}
 	}
 	
-	public void pitchBendNoteParser(int data[]){
+	private void pitchBendNoteParser(int data[]){
 		int size = data.length; 
 		int index = 0;
 		
@@ -216,7 +231,7 @@ public class ProtocolParser {
 		}
 	}
 	
-	public void controlChangeParser(int data[]){
+	private void controlChangeParser(int data[]){
 		int resolution = data[3];
 		
 		if(resolution == 0){
@@ -277,7 +292,7 @@ public class ProtocolParser {
 		}	
 	}
 
-	public void controlChangeFadeParser(int data[]){
+	private void controlChangeFadeParser(int data[]){
 		int resolution = data[3]; 
 		
 		if(resolution == 0){
@@ -328,14 +343,14 @@ public class ProtocolParser {
 		}
 	}
 	
-	public void sceneDataParser(int[] data){
+	private void sceneDataParser(int[] data){
 		for(int i=0; i<data.length; i++){
 			byte tmp = (byte)data[i];
 			byteArray.add(tmp);
 		}
 	}
 	
-	public void parseCyclicRedundancyCheck(){
+	private void parseCyclicRedundancyCheck(){
 		byte crcBuffer[] = new byte[4];
 		byte data[] = new byte[byteArray.size()];
 		long crc = 0L;
@@ -365,7 +380,7 @@ public class ProtocolParser {
 			
 			
 		} catch(Exception e){
-			System.out.println("Error ocurred in ProtocolParser parseCyclicRedundancyCheck(byte data[])");
+			System.out.println("Error occurred in ProtocolParser parseCyclicRedundancyCheck(byte data[])");
 			e.printStackTrace(System.err);
 		}
 	}
@@ -466,7 +481,7 @@ public class ProtocolParser {
 				}										
 			}		
 		} catch(Exception e){
-			System.err.println("Error ocurred in toStringTestTwo");
+			System.err.println("Error occurred in toStringTestTwo");
 			e.printStackTrace(System.err);
 		}
 		return byteArrayString;
@@ -566,7 +581,7 @@ public class ProtocolParser {
 			
 			
 		} catch(Exception e){
-			System.err.println("Error ocurred in toStringTestThree");
+			System.err.println("Error occurred in toStringTestThree");
 			e.printStackTrace(System.err);
 		}
 				
@@ -684,7 +699,7 @@ public class ProtocolParser {
 		return byteArrayString;
 	}
 	
-	public void parseSceneBlock(int sceneNumber)
+	private void parseSceneBlock(int sceneNumber)
 	{
 		byteArray.add((byte)0x53); 		//S
 		byteArray.add((byte)0x43); 		//C
@@ -696,7 +711,7 @@ public class ProtocolParser {
 		byteArray.add((byte)sceneNumber);
 	}
 	
-	public void parseStartBlock()
+	private void parseStartBlock()
 	{	
 		byteArray.add((byte)0x53);	//S
 		byteArray.add((byte)0x54);	//T
@@ -708,7 +723,7 @@ public class ProtocolParser {
 		byteArray.add((byte)0x4B);	//K
 	}
 	
-	public void parseEndBlock()
+	private void parseEndBlock()
 	{
 		byteArray.add((byte)0x45);	//E
 		byteArray.add((byte)0x4E);	//N
@@ -720,7 +735,7 @@ public class ProtocolParser {
 		byteArray.add((byte)0x4B);	//K	
 	}
 	
-	public void parseCyclicRedundancyCheckBeginBlock()
+	private void parseCyclicRedundancyCheckBeginBlock()
 	{
 		byteArray.add((byte)0x43); //C
 		byteArray.add((byte)0x52); //R
@@ -732,7 +747,7 @@ public class ProtocolParser {
 		byteArray.add((byte)0x4C); //L
 	}
 	
-	public void parseCyclicedundancyCheckEndBlock(){
+	private void parseCyclicedundancyCheckEndBlock(){
 		byteArray.add((byte)0x43);	//C
 		byteArray.add((byte)0x52);	//R
 		byteArray.add((byte)0x43);	//C
@@ -753,7 +768,7 @@ public class ProtocolParser {
 	    	 crc = ~crc;
 			}	
 		} catch (Exception e){
-			System.err.println("Error ocurred in ProtocolParser public long calculateCyclicRedundancyCheck");
+			System.err.println("Error occurred in ProtocolParser public long calculateCyclicRedundancyCheck");
 			e.printStackTrace(System.err);
 		}
 				
@@ -785,6 +800,8 @@ public class ProtocolParser {
 	}
 	
 	/**
+	 * @deprecated
+	 * 
 	 * Convert ByteArray to a Long, used to 
 	 * revert the byte array back to the 
 	 * original crc value. The embedded MCU 
@@ -866,7 +883,7 @@ public class ProtocolParser {
 				match = true;
 			} 
 		} catch(Exception e){
-			System.err.println("Error ocurred in findSceneBlock");
+			System.err.println("Error occurred in findSceneBlock");
 			e.printStackTrace(System.err);
 		}
 		return match;
@@ -906,7 +923,7 @@ public class ProtocolParser {
 				match = true;
 			}
 		} catch(Exception e){
-			System.err.println("Error ocurred in findStartBlock");
+			System.err.println("Error occurred in findStartBlock");
 			e.printStackTrace(System.err);
 		}
 		
@@ -944,7 +961,7 @@ public class ProtocolParser {
 				match = true;
 			} 
 		} catch(Exception e) {
-			System.err.println("Error ocurred in findEndBlock");
+			System.err.println("Error occurred in findEndBlock");
 			e.printStackTrace(System.err);
 		}
 		return match;

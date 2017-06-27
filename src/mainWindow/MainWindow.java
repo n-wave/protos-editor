@@ -23,6 +23,7 @@ import java.io.ObjectOutputStream;
 
 import guiComponents.SceneGroup;
 import helpers.Preset;
+import helpers.ProtocolParser;
 import helpers.TestParser;
 
 
@@ -54,11 +55,6 @@ public class MainWindow {
 	Preset preset = new Preset("default");
 	TabItem[] tabs = new TabItem[numberOfScenes]; 
 	SceneGroup[] scenes = new SceneGroup[numberOfScenes];
-
-	/** Test Parser **/
-	
-	TestParser testParser = new TestParser();
-
 	
 	/** Test Serial Communication **/;
 	
@@ -85,31 +81,6 @@ public class MainWindow {
 		createContents();
 		shell.open();
 		shell.layout();
-
-		try{
-		
-
-	
-		//	thread.setDaemon(true);
-
-			
-			//System.out.println(serial.closePort(ports[0]));
-			
-		
-
-			//testParser.testTwo();
-			
-			//testParser.testThree();
-			
-			//testParser.testFour();
-			//testParser.testFive();
-			//testParser.testSix();
-			//testParser.testSeven();
-		} catch(Exception e){
-			System.err.println("Error Ocurred while testing parser");
-			e.printStackTrace(System.err);
-		}	
-		
 		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
@@ -285,6 +256,7 @@ public class MainWindow {
 							
 				if(path != null){				
 					try{
+						int index = tabFolder.getSelectionIndex();
 						/** 
 						 *  Get current Active DataContainers 
 						 *  And Place them in the preset wrapper 
@@ -300,7 +272,11 @@ public class MainWindow {
 						ObjectOutputStream out = new ObjectOutputStream(fos);
 						out.writeObject(preset);
 						out.close();
+				
 
+						scenes[index].redrawGuiComponent();
+						shell.setText("Guitar Hero Editor : " + preset.getName());
+						
 					} catch(Exception e){
 						System.err.println("Error occured while saving file :" + path);
 						e.printStackTrace(System.err);
@@ -312,18 +288,16 @@ public class MainWindow {
 	uploadItem.addSelectionListener(new SelectionAdapter(){
 		@Override
 		public void widgetSelected(SelectionEvent event){
-		
+			String result = new String("Upload Serial Communication");
+			
 			try{
-	
-				
+				ProtocolParser parser = new ProtocolParser();
 				
 			} catch(Exception e){
 				System.err.println("Error ocurred in MainWindow");
 				e.printStackTrace(System.err);
-			}
-			
-		}
-		
+			}		
+		}	
 	});	
 	
 	/** Print contents of dataStructures in preset to the console **/
@@ -344,7 +318,7 @@ public class MainWindow {
 					tmpPreset.setDataContainer(scenes[i].getDataContainer(), i);
 				}
 				
-				testVar.testEight(tmpPreset);		
+				testVar.parsePreset(tmpPreset);		
 				
 			} catch(Exception e){
 				System.err.println("Error occurred in MainWindow printItem.addSelecetionListener(new SelectionAdapter(");
