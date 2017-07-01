@@ -15,7 +15,7 @@ public class SerialCommunication implements Runnable {
 	private int state = -1;
 	private int blockSize = 8;
 	
-	IncomingSerial serialMessages;
+	SerialBlocks serialMessages;
 	
 	private byte[] readBuffer =  new byte[32];
 	private byte[] dataBuffer = new byte[blockSize]; 
@@ -49,7 +49,7 @@ public class SerialCommunication implements Runnable {
 									0x44	//D
 								  };
 	
-	public SerialCommunication(IncomingSerial compareSerialBlocks){
+	public SerialCommunication(SerialBlocks compareSerialBlocks){
 		serialMessages = compareSerialBlocks;
 		
 		blockSize = serialMessages.getBlockSize();

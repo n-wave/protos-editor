@@ -25,6 +25,8 @@ import guiComponents.SceneGroup;
 import helpers.Preset;
 import helpers.ProtocolParser;
 import helpers.TestParser;
+import serialCommunication.SerialBlocksGHMC;
+import serialCommunication.SerialCommunication;
 
 
 
@@ -285,16 +287,152 @@ public class MainWindow {
 			}
 		});
 		
+		/*
+		 *  Upload Messages for the Serial Communication to the EEPROM 
+		 *  Memory. Afther the Identification of the hardware device 
+		 *  has been confirmed start sending the bytes in chunks of 
+		 *  32 Bytes. The array contains 1984 Bytes 1984/32 = 62;
+		 *  
+		 *  The last chunk contains the CRC extract and calculate 
+		 *  
+		 * 
+		 * 	"STARTC"										
+		 *  "CALCRC"
+		 *  
+		 *  Using SerialCommunication v-036 in Teensy-3.1. and verified
+		 */
+		
+		
+	/** Tested the Routine with SerialCommunication-v0.36 **/	
+		
 	uploadItem.addSelectionListener(new SelectionAdapter(){
 		@Override
 		public void widgetSelected(SelectionEvent event){
-			String result = new String("Upload Serial Communication");
+			String result = new String("");
 			
 			try{
 				ProtocolParser parser = new ProtocolParser();
 				
+
+				
+				
+				byte messageBuffer[] = new byte[6];	//Holds write Messages
+				byte dataBuffer[];  //Holds Complete dataBuffer
+
+				int state = 0;
+
+				
+				SerialBlocksGHMC serialBlocks = new SerialBlocksGHMC();
+				SerialCommunication serial = new SerialCommunication(serialBlocks);
+				Thread thread = new Thread(serial);
+				thread.setDaemon(true);
+						
+				/* 
+				 * Get all the dataStructures from the scenes and 
+				 * place them in the preset Object
+				 */
+				
+				Preset tmpPreset = new Preset("tmp");
+				
+				for(int i=0; i < numberOfScenes; i++){
+					tmpPreset.setDataContainer(scenes[i].getDataContainer(), i);
+				}
+				
+				/* Parse Protocol and get the ByteArray */
+				parser.parsePreset(tmpPreset);
+				dataBuffer = parser.getByteArray();
+				
+				
+				/* Get serialPorts if available */
+				String commPort;
+				String serialPorts[] = serial.getPorts();
+				
+				if(serialPorts.length > 0){
+					commPort = serialPorts[0];
+					System.out.println("COMM port : " + commPort + "\n");
+				} else {
+					commPort = new String("Not Available");
+				}
+				
+				System.out.println(serial.openPort(commPort));
+				
+				if(!thread.isAlive()){
+					thread.start();
+				}
+				
+				serial.enablePolling();
+				
+				messageBuffer = serialBlocks.getWriteBlock("STARTC");
+				
+				System.out.println("Sending STARTC");
+				serial.writeDataToCommunicationPort(messageBuffer);
+				Thread.sleep(150);
+				state = serial.getState(); 
+				result = serialBlocks.getString(state);
+				
+				/** ID01GH has been found start sending the data**/ 
+				if(state == 1){
+					System.out.println("Current State : " + result);
+					Thread.sleep(100);
+					System.out.println("Starting Upload");
+					
+					boolean run = true;
+					int byteArrayIndex = 0;
+					int nrOfUploads = 62; // 1984/32 = 62;
+					
+					
+					do{
+						byte writeBuffer[] = new byte [32]; //Holds write Buffer						
+						System.out.println("Byte Blocks left: " + nrOfUploads);
+						
+						if(state == 1 || state == 2){
+							for(int i=0; i<32; i++){
+								writeBuffer[i] = dataBuffer[byteArrayIndex];
+								byteArrayIndex++;
+							}
+							
+							serial.writeDataToCommunicationPort(writeBuffer);
+							Thread.sleep(100);
+						}
+						
+						state = serial.getState();
+						
+						if(nrOfUploads == 1){
+							run = false;
+							messageBuffer = serialBlocks.getWriteBlock("CALCRC");
+							serial.writeDataToCommunicationPort(messageBuffer);
+							Thread.sleep(250);
+							state = serial.getState();
+							System.out.println(state);
+							serial.writeDataToCommunicationPort(messageBuffer);
+							state = serial.getState();
+							System.out.println(byteArrayIndex);
+							/* Sending the data and the internal CRC 
+							 * Calculation has been a succes. Upload
+							 * has Succeeded 
+							 */
+							if(state == 3){
+								run = false; 
+								System.out.println("Data has been Upload succesfully");
+							} else if(state == -1){
+								System.out.println("Upload has failed Try Again");
+								run = false;
+							}						
+						}
+						
+						nrOfUploads--;
+					} while(run);
+					
+				}
+				
+				serial.disablePolling();
+				Thread.sleep(250);
+				serial.closePort(commPort);
+				Thread.sleep(250);
+				thread.interrupt();
+				
 			} catch(Exception e){
-				System.err.println("Error ocurred in MainWindow");
+				System.err.println("Error ocurred in MainWindow while trying to upload preset");
 				e.printStackTrace(System.err);
 			}		
 		}	

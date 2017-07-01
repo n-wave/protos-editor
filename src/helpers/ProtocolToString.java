@@ -314,17 +314,8 @@ public class ProtocolToString {
 		
 		return values;
 	}
-	/*
-	 0xF0, //Start
-	 0xE5, //ID
-	 8,    //Channel
-	 0,    //Resolution
-	 0,   //CC nr
-	 0,  //Top Value
-	 0,   //Bottom Value
-	 0xFF  //end 
-	 
-	 */
+	
+	
 	private String controlChangeToString(byte buffer[])
 	{
 		String values = new String();
@@ -479,10 +470,7 @@ public class ProtocolToString {
 		} catch(Exception e){
 			System.err.println("Error ocurred in sceneDataToString");
 			e.printStackTrace(System.err);
-		}
-		
-		
-		
+		}	
 		return values;
 	}
 }

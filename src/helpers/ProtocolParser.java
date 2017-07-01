@@ -371,7 +371,7 @@ public class ProtocolParser {
 				byteArray.add(crcBuffer[i]);		//4 Bytes
 			}
 			
-			this.parseCyclicedundancyCheckEndBlock(); //8 Bytes
+			parseCyclicedundancyCheckEndBlock(); //8 Bytes
 			
 			for(int i=0; i<12; i++){
 				byteArray.add((byte)0x00);
@@ -800,8 +800,6 @@ public class ProtocolParser {
 	}
 	
 	/**
-	 * @deprecated
-	 * 
 	 * Convert ByteArray to a Long, used to 
 	 * revert the byte array back to the 
 	 * original crc value. The embedded MCU 
