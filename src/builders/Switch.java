@@ -6,6 +6,7 @@ import org.eclipse.swt.widgets.Composite;
 import dataContainers.ControlChangeData;
 import dataContainers.ControlChangeFadeData;
 import dataContainers.DataStructure;
+import dataContainers.DisabledControllerData;
 import dataContainers.NoteVelocityData;
 import dataContainers.ProgramChangeData;
 import guiComponents.*;
@@ -29,10 +30,13 @@ import guiComponents.*;
 	
 public class Switch extends Controller {
 
-	private String[] optionList = {"Note Velocity", 
+	private String[] optionList = {
+								   "Disabled",
+								   "Note Velocity", 
 								   "Control Change",
 								   "Control Change Fade", 
-								   "Program Change"};
+								   "Program Change"
+								   };
 	
 	/* used for distinguishing gui
 	 *  components and later for 
@@ -40,17 +44,18 @@ public class Switch extends Controller {
 	 *  be sent to the teensy
 	 */
 	private int optionIndex = 0; 
-	private int numberOfOptions = 4;
+	private int numberOfOptions = 5;
 	
-	private DataStructure[] data = new DataStructure[4];
+	private DataStructure[] data = new DataStructure[5];
 	
 	public Switch(String name){
 		super(name);
 		
-		data[0] = new NoteVelocityData();
-		data[1] = new ControlChangeData();
-		data[2] = new ControlChangeFadeData();
-		data[3] = new ProgramChangeData();
+		data[0] = new DisabledControllerData();
+		data[1] = new NoteVelocityData();
+		data[2] = new ControlChangeData();
+		data[3] = new ControlChangeFadeData();
+		data[4] = new ProgramChangeData();
 		
 		//System.out.println(this.toString());
 	}
@@ -129,20 +134,27 @@ public class Switch extends Controller {
 		
 		try{
 			switch(componentIndex){
-			case 0:
-				guiComponent = new NoteComponent(parent, SWT.NONE, data[0]);
-				break;
-			case 1:
-				guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[1]);
-				break;
-			case 2:
-				guiComponent = new ControlChangeFadeComponent(parent, SWT.NONE, data[2]);
-				break;
-			case 3:
-				guiComponent = new ProgramChangeComponent(parent, SWT.NONE, data[3]);
-				break;
-			default:
-				return guiComponent;				
+				case 0:
+					guiComponent = new DisabledControllerComponent(parent, SWT.NONE, data[0]);
+					break;
+				case 1:
+					NoteComponent noteComponent = new NoteComponent(parent, SWT.NONE, data[1]);
+					noteComponent.enableLinkOption(false);
+					guiComponent = noteComponent;			
+					break;
+				case 2:
+					ControlChangeComponent controlChangeComponent = new ControlChangeComponent(parent, SWT.NONE, data[2]);
+					controlChangeComponent.changeLabelText("On Value", "Off Value");
+
+					guiComponent = controlChangeComponent;						
+					break;
+				case 3:
+					guiComponent = new ControlChangeFadeComponent(parent, SWT.NONE, data[3]);
+					break;
+				case 4:
+					guiComponent = new ProgramChangeComponent(parent, SWT.NONE, data[4]);
+					break;
+				
 			}
 		} catch(Exception e) {
 			System.err.println("Error ocurred while creating gui component");

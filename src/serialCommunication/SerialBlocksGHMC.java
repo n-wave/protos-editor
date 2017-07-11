@@ -70,7 +70,7 @@ public class SerialBlocksGHMC extends SerialBlocks {
 				throw new IllegalArgumentException("No such option");
 			}
 		} catch(Exception e){
-			System.err.println("Error occurred in SerialBlocksGHMC::getWriteBlock(String option)");
+			System.err.println("Error occurred in SerialBlocksGHMC::getWriteBlock(String)");
 			e.printStackTrace(System.err);
 		}
 		

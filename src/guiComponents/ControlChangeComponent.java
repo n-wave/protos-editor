@@ -29,6 +29,9 @@ public class ControlChangeComponent extends Composite {
 	private Spinner topValueSpinner;
 	private Spinner bottomValueSpinner;
 	
+	private Label topValueLabel;
+	private Label bottomValueLabel;
+	
 	private String name = new String("ControlChangeComponent");
 	
 	public ControlChangeComponent(Composite parent, int style) {
@@ -140,7 +143,7 @@ public class ControlChangeComponent extends Composite {
 	{
 		int topValue = controlChangeData.getTopValue();
 		
-		Label topValueLabel = new Label(this, SWT.NONE);
+	    topValueLabel = new Label(this, SWT.NONE);
 		topValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		topValueLabel.setText("Top Value");
 		
@@ -156,7 +159,7 @@ public class ControlChangeComponent extends Composite {
 	private void initializeBottomValueSelection()
 	{	int bottomValue = controlChangeData.getBottomValue();
 	
-		Label bottomValueLabel = new Label(this, SWT.NONE);
+	    bottomValueLabel = new Label(this, SWT.NONE);
 		bottomValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		bottomValueLabel.setText("Bottom Value");
 		
@@ -169,6 +172,10 @@ public class ControlChangeComponent extends Composite {
 		bottomValueSpinner.setSelection(bottomValue);
 	}
 	
+	public void changeLabelText(String labelOne, String labelTwo){
+		topValueLabel.setText(labelOne);
+		bottomValueLabel.setText(labelTwo);
+	}
 	
 	private void setMaximumValues(int value){
 		int top = controlChangeData.getTopValue();
@@ -212,10 +219,10 @@ public class ControlChangeComponent extends Composite {
 		 if(data instanceof ControlChangeData){
 			 controlChangeData = (ControlChangeData)data;
 		 }	else {
-			 System.err.println("Wrong DataStructure Component suplied");
+			 System.err.println("Wrong DataStructure Object suplied in ControlChangeComponent::initializeDataStructure(DataStructure)");
 		 }			
 		} catch (Exception e){
-			System.err.println("Error ocurred in ControlChangeComponent");
+			System.err.println("Error ocurred in ControlChangeComponent::initializeDataStructure(DataStructure)");
 			e.printStackTrace(System.err);
 		}		
 	}

@@ -201,7 +201,7 @@ public class ProtocolToString {
 					if(buffer[i] == 0){
 						values += Byte.toUnsignedInt(buffer[i]) + " : Zero Padding \n";
 					} else {
-						values += "Error";
+						values += "Error \n";
 					}
 				}
 				
@@ -231,7 +231,6 @@ public class ProtocolToString {
 				}
 			} else {
 				values = "Error while Parsing Note Control Change Data \n";
-				return values;
 			}
 			
 		} catch(Exception e){
@@ -298,7 +297,7 @@ public class ProtocolToString {
 					if(buffer[i] == 0){
 						values += Byte.toUnsignedInt(buffer[i]) + " : Zero Padding \n";
 					} else {
-						values += "Error";
+						values += "Error \n";
 					}	
 				}
 			} else {
@@ -449,7 +448,7 @@ public class ProtocolToString {
 			if(startByte == 0xF0 && optionId == 0xEA && endByte == 0xFF)
 			{
 				values += Byte.toUnsignedInt(buffer[0]) + " : Start Byte \n";
-				values += Byte.toUnsignedInt(buffer[1]) + " : Scene Data \n";
+				values += Byte.toUnsignedInt(buffer[1]) + " : Scene Data Id \n";
 				values += Byte.toUnsignedInt(buffer[2]) + " : Option \n";
 				values += Byte.toUnsignedInt(buffer[3]) + " : MIDI Channel 1 \n";
 				values += Byte.toUnsignedInt(buffer[4]) + " : Bank 1 \n";

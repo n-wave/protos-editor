@@ -5,7 +5,9 @@ import org.eclipse.swt.widgets.Composite;
 
 import dataContainers.ControlChangeData;
 import dataContainers.DataStructure;
+import dataContainers.DisabledControllerData;
 import guiComponents.ControlChangeComponent;
+import guiComponents.DisabledControllerComponent;
 
 /**
  * @author mario
@@ -27,16 +29,21 @@ import guiComponents.ControlChangeComponent;
 
 public class PotentioMeter extends Controller {
 
-	private String[] optionList = {"Control Change"};	
-	private int optionIndex = 0;
-	private int numberOfOptions = 1;
+	private String[] optionList = { 
+									"Disabled",
+									"Control Change"
+								  };	
 	
-	private DataStructure[] data = new DataStructure[1];
+	private int optionIndex = 0;
+	private int numberOfOptions = 2;
+	
+	private DataStructure[] data = new DataStructure[2];
 
 	
 	public PotentioMeter(String name){
 		super(name);
-		data[0] = new ControlChangeData();
+		data[0] = new DisabledControllerData();
+		data[1] = new ControlChangeData();
 		
 		//System.out.println(this.toString());
 	}
@@ -116,7 +123,16 @@ public class PotentioMeter extends Controller {
 		Composite guiComponent = null;
 		
 		try{
-			guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[0]);		
+			switch(componentIndex){
+				case 0:
+					guiComponent = new DisabledControllerComponent(parent, SWT.NONE, data[0]);
+					break;
+				case 1:
+					guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[1]);	
+					break;
+			}
+			
+	
 		} catch(Exception e){
 			System.err.println("Error ocurred while creating gui Component");
 			e.printStackTrace(System.err);

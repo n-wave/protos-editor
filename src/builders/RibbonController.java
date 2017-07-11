@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import dataContainers.ControlChangeData;
 import dataContainers.DataStructure;
+import dataContainers.DisabledControllerData;
 import dataContainers.PitchBendData;
 import dataContainers.PitchBendNoteData;
 import guiComponents.*;
@@ -39,22 +40,26 @@ public class RibbonController extends Controller {
 	
 	
 	
-	private String[] optionList = {"Pitch Bend", 
+	private String[] optionList = {
+								   "Disabled",
+								   "Pitch Bend", 
 								   "Pitch Bend Note", 
-								   "Control Change"};
+								   "Control Change"
+								   };
 	
 	private int optionIndex = 0; 
-	private int numberOfOptions = 3;
+	private int numberOfOptions = 4;
 	
-	private DataStructure[] data = new DataStructure[3];
+	private DataStructure[] data = new DataStructure[4];
 
 	
 	public RibbonController(String name){
 		super(name);
 		
-		data[0] = new PitchBendData();
-		data[1] = new PitchBendNoteData();
-		data[2] = new ControlChangeData();
+		data[0] = new DisabledControllerData();
+		data[1] = new PitchBendData();
+		data[2] = new PitchBendNoteData();
+		data[3] = new ControlChangeData();
 		
 		//System.out.println(this.toString());
 	}
@@ -133,16 +138,17 @@ public class RibbonController extends Controller {
 		try{
 			switch(componentIndex){
 				case 0: 
-					guiComponent = new PitchBendComponent(parent, SWT.NONE, data[0]);
+					guiComponent = new DisabledControllerComponent(parent, SWT.NONE, data[0]);
 					break;
-				case 1:
-					guiComponent = new PitchBendNoteComponent(parent, SWT.NONE, data[1]);
+				case 1: 
+					guiComponent = new PitchBendComponent(parent, SWT.NONE, data[1]);
 					break;
 				case 2:
-					guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[2]);
+					guiComponent = new PitchBendNoteComponent(parent, SWT.NONE, data[2]);
 					break;
-				default:
-					return guiComponent;
+				case 3:
+					guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[3]);
+					break;
 			}
 		} catch(Exception e){
 			System.err.println("Error ocurred while creating gui Component");

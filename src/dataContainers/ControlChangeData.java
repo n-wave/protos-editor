@@ -63,13 +63,7 @@ public class ControlChangeData extends DataStructure {
 	public int getControlChangeNumber(){
 		return data[4];
 	}
-	/* 
-	 * TODO add logic when resolution 
-	 * statement is toggled
-	 * And add logic that inhibits
-	 * top value smaller than lower
-	 * value vice versa
-	 */
+
 	public void setTopValue(int topValue){
 		data[5] = topValue;
 	}

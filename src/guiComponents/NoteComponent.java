@@ -125,7 +125,6 @@ public class NoteComponent extends Composite {
 		velocityCheckButton = new Button(this, SWT.CHECK);
 		velocityCheckButton.setFont(SWTResourceManager.getFont("Noto Sans", 12, SWT.NORMAL));
 		velocityCheckButton.setToolTipText("Link Velocity to Sensor Input");
-		velocityCheckButton.setSelection(option);
 	}
 	
 	private void initializeDataStructure(DataStructure data){
@@ -140,6 +139,11 @@ public class NoteComponent extends Composite {
 			e.printStackTrace(System.err);
 		}		
 	}	
+	
+	public void enableLinkOption(boolean option){
+		velocityCheckButton.setEnabled(option);
+		velocityCheckButton.setVisible(option);
+	}
 	
 	public String toString(){
 		String internalValues = new String("/** GuiComponent **/" +

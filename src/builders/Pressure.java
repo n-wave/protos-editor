@@ -5,6 +5,7 @@ import org.eclipse.swt.widgets.Composite;
 
 import dataContainers.ControlChangeData;
 import dataContainers.DataStructure;
+import dataContainers.DisabledControllerData;
 import dataContainers.NoteControlChangeData;
 import dataContainers.NoteVelocityData;
 import guiComponents.*;
@@ -12,17 +13,6 @@ import guiComponents.*;
 /**
  * @author mario
  *	26-04-2017
- *
- * Option ID's use for parsing 
- * and handling data in Teensy 3.1
- * 
- * Note Velocity 	 0xE1
- * Note and CC		 0xE2
- * PitchBend		 0xE3
- * PitchBendNote	 0xE4
- * ControlChange 	 0xE5
- * ControlChangeFade 0xE6
- * ProgramChange	 0xE7
  * 
  */
 		
@@ -33,21 +23,24 @@ public class Pressure extends Controller {
 	 * 
 	 */
 
-	private String[] optionList = {"Note Velocity",
+	private String[] optionList = {
+								   "Disabled",
+								   "Note Velocity",
 								   "Note Control Change",
 								   "Control Change"
 								  };
 	
 	private int optionIndex = 0; 
-	private DataStructure[] data = new DataStructure[3];
-	private int numberOfOptions = 3;
+	private int numberOfOptions = 4;
+	private DataStructure[] data = new DataStructure[4];
 	
 	public Pressure(String name){
 		super(name);
 		
-		data[0] = new NoteVelocityData();
-		data[1] = new NoteControlChangeData();
-		data[2] = new ControlChangeData();
+		data[0] = new DisabledControllerData();
+		data[1] = new NoteVelocityData();
+		data[2] = new NoteControlChangeData();
+		data[3] = new ControlChangeData();
 		
 		//System.out.println(this.toString());
 	}
@@ -127,16 +120,17 @@ public class Pressure extends Controller {
 		try{
 			switch(componentIndex){
 				case 0:
-					guiComponent = new NoteComponent(parent, SWT.NONE, data[0]);
+					guiComponent = new DisabledControllerComponent(parent, SWT.NONE, data[0]);
 					break;
 				case 1:
-					guiComponent = new NoteControlChangeComponent(parent, SWT.NONE, data[1]); 
+					guiComponent = new NoteComponent(parent, SWT.NONE, data[1]);
 					break;
 				case 2:
-					guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[2]);
+					guiComponent = new NoteControlChangeComponent(parent, SWT.NONE, data[2]); 
 					break;
-				default:
-					return guiComponent;
+				case 3:
+					guiComponent = new ControlChangeComponent(parent, SWT.NONE, data[3]);
+					break;
 			}
 			
 		} catch(Exception e){

@@ -312,10 +312,7 @@ public class MainWindow {
 			
 			try{
 				ProtocolParser parser = new ProtocolParser();
-				
-
-				
-				
+								
 				byte messageBuffer[] = new byte[6];	//Holds write Messages
 				byte dataBuffer[];  //Holds Complete dataBuffer
 

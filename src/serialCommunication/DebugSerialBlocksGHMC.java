@@ -29,13 +29,13 @@ public class DebugSerialBlocksGHMC extends SerialBlocks{
 							};
 
 	private byte crcbgn[] = {
-			 0x43,	//C
-			 0x52,	//R
-			 0x43,	//C
-			 0x42,	//B
-			 0x47,	//G
-			 0x4E	//N
-			};
+							0x43,	//C
+							0x52,	//R
+							0x43,	//C
+							0x42,	//B
+							0x47,	//G
+							0x4E	//N
+							};
 	
 	private byte calcrc[] = {
 							 0x43,	//C
