@@ -10,13 +10,13 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.layout.GridData;
 
-import dataContainers.ControlChangeFadeData;
+
+import dataContainers.ControlChangeFadeToggleData;
 import dataContainers.DataStructure;
 
 
-public class ControlChangeFadeComponent extends Composite {
+public class ControlChangeFadeToggleComponent extends Composite {
 
 	/**
 	 * Create the composite.
@@ -24,7 +24,7 @@ public class ControlChangeFadeComponent extends Composite {
 	 * @param style
 	 */
 	
-	private ControlChangeFadeData controlChangeFadeData;
+	private ControlChangeFadeToggleData controlChangeFadeToggleData;
 	
 	private Spinner channelSpinner;
 	private Combo resolutionCombo;
@@ -35,18 +35,20 @@ public class ControlChangeFadeComponent extends Composite {
 	private Spinner fadeInSpinner;
 	private Spinner fadeOutSpinner;
 
-	private String name = new String("ControlChangeFadeComponent");
+	private String name = new String("ControlChangeFadeToggleComponent");
+	private Label toggleLabel;
+	private Combo toggleCombo;
 	
 	private boolean resolutionChanged = false;
 	
-	public ControlChangeFadeComponent(Composite parent, int style) {
+	public ControlChangeFadeToggleComponent(Composite parent, int style) {
 		super(parent, style);
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 14, SWT.BOLD));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		setLayout(new GridLayout(2, false));
 		
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
 		initializeStartValueSelection();
@@ -59,7 +61,7 @@ public class ControlChangeFadeComponent extends Composite {
 		
 	}
 
-	public ControlChangeFadeComponent(Composite parent, int style, DataStructure data) {
+	public ControlChangeFadeToggleComponent(Composite parent, int style, DataStructure data) {
 		super(parent, style);
 		
 		initializeDataStructure(data);
@@ -70,6 +72,7 @@ public class ControlChangeFadeComponent extends Composite {
 		setLayout(new GridLayout(2, false));
 		
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
 		initializeStartValueSelection();
@@ -80,7 +83,7 @@ public class ControlChangeFadeComponent extends Composite {
 		
 		initializeListeners();
 		
-		int value = controlChangeFadeData.getResolutionOption();
+		int value = controlChangeFadeToggleData.getResolutionOption();
 		setMaximumValues(value);
 		//System.out.println(this.toString());
 	}
@@ -92,52 +95,68 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeChannelSelection()
 	{
-		int channel = controlChangeFadeData.getChannel();
+		int channel = controlChangeFadeToggleData.getChannel();
+		setLayout(null);
 				
 		Label ChannelLabel = new Label(this, SWT.NONE);
+		ChannelLabel.setBounds(5, 10, 77, 19);
 		ChannelLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		ChannelLabel.setText("Channel");
 		
 		channelSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_channelSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_channelSpinner.widthHint = 100;
-		channelSpinner.setLayoutData(gd_channelSpinner);
+		channelSpinner.setBounds(131, 5, 106, 29);
 		channelSpinner.setMaximum(16);
 		channelSpinner.setMinimum(1);
 		channelSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		channelSpinner.setSelection(channel);
 	}
 	
+	private void initializeToggleSelection(){
+		int toggle = controlChangeFadeToggleData.getToggleOption();
+		
+		toggleLabel = new Label(this, SWT.NONE);
+		toggleLabel.setBounds(294, 10, 69, 19);
+		toggleLabel.setToolTipText("Switch Behaviour");
+		toggleLabel.setText("Option");
+		toggleLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		
+		toggleCombo = new Combo(this, SWT.NONE);
+		toggleCombo.setBounds(365, 8, 106, 24);
+		toggleCombo.setToolTipText("Switch Behaviour");
+		toggleCombo.setTextDirection(3355443);
+		toggleCombo.setItems(new String[] {"Momentary\t", "Toggle"});
+		toggleCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		toggleCombo.select(toggle);
+	}
+	
 	private void initializeResolutionSelection()
 	{
-		int resolution = controlChangeFadeData.getResolutionOption();
-		
+		int resolution = controlChangeFadeToggleData.getResolutionOption();
+			
 		Label resolutionLabel = new Label(this, SWT.NONE);
+		resolutionLabel.setBounds(5, 41, 110, 19);
 		resolutionLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		resolutionLabel.setText("Resolution");
 		
 		resolutionCombo = new Combo(this, SWT.NONE);
+		resolutionCombo.setBounds(131, 39, 106, 23);
 		resolutionCombo.setTextDirection(3355443);
 		resolutionCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		resolutionCombo.setItems(new String[] {"7 Bit", "14 Bit"});
-		GridData gd_resolutionCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_resolutionCombo.widthHint = 106;
-		resolutionCombo.setLayoutData(gd_resolutionCombo);
 		resolutionCombo.select(resolution);
 	}
 	
 	private void initializeControlChangeNumberSelection()
 	{
-		int number = controlChangeFadeData.getControlChangeNumber();
+		int number = controlChangeFadeToggleData.getControlChangeNumber();
 		
 		Label controlChangeLabel = new Label(this, SWT.NONE);
+		controlChangeLabel.setBounds(5, 72, 99, 19);
 		controlChangeLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		controlChangeLabel.setText("CC Number");
 		
 		controlChangeSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_controlChangeSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_controlChangeSpinner.widthHint = 100;
-		controlChangeSpinner.setLayoutData(gd_controlChangeSpinner);
+		controlChangeSpinner.setBounds(131, 67, 106, 29);
 		controlChangeSpinner.setMaximum(127);
 		controlChangeSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		controlChangeSpinner.setSelection(number);
@@ -146,16 +165,15 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeStartValueSelection()
 	{
-		int start = controlChangeFadeData.getStartValue();
+		int start = controlChangeFadeToggleData.getStartValue();
 		
 		Label startValueLabel = new Label(this, SWT.NONE);
+		startValueLabel.setBounds(5, 106, 121, 19);
 		startValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		startValueLabel.setText("Start Value");
 		
 		startValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_startValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_startValueSpinner.widthHint = 100;
-		startValueSpinner.setLayoutData(gd_startValueSpinner);
+		startValueSpinner.setBounds(131, 101, 106, 29);
 		startValueSpinner.setMaximum(127);
 		startValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		startValueSpinner.setSelection(start);
@@ -163,16 +181,15 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeHoldValueSelection()
 	{
-		int hold = controlChangeFadeData.getHoldValue();
+		int hold = controlChangeFadeToggleData.getHoldValue();
 		
 		Label holdValueLabel = new Label(this, SWT.NONE);
+		holdValueLabel.setBounds(5, 140, 110, 19);
 		holdValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		holdValueLabel.setText("Hold Value");
 		
 		holdValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_holdValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_holdValueSpinner.widthHint = 100;
-		holdValueSpinner.setLayoutData(gd_holdValueSpinner);
+		holdValueSpinner.setBounds(131, 135, 106, 29);
 		holdValueSpinner.setMaximum(127);
 		holdValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		holdValueSpinner.setSelection(hold);
@@ -180,16 +197,15 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeEndValueSelection()
 	{	
-		int end = controlChangeFadeData.getEndValue();
+		int end = controlChangeFadeToggleData.getEndValue();
 		
 		Label endValueLabel = new Label(this, SWT.NONE);
+		endValueLabel.setBounds(5, 174, 99, 19);
 		endValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		endValueLabel.setText("End Value");
 		
 		endValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_endValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_endValueSpinner.widthHint = 100;
-		endValueSpinner.setLayoutData(gd_endValueSpinner);
+		endValueSpinner.setBounds(131, 169, 106, 29);
 		endValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		endValueSpinner.setMaximum(127);
 		endValueSpinner.setSelection(end);
@@ -197,16 +213,15 @@ public class ControlChangeFadeComponent extends Composite {
 
 	private void initializeFadeInSelection()
 	{
-		int fadeIn = controlChangeFadeData.getFadeInValue();
+		int fadeIn = controlChangeFadeToggleData.getFadeInValue();
 				
 		Label fadeInLabel = new Label(this, SWT.NONE);
+		fadeInLabel.setBounds(5, 208, 77, 19);
 		fadeInLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		fadeInLabel.setText("Fade In");
 		
 		fadeInSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_fadeInSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_fadeInSpinner.widthHint = 100;
-		fadeInSpinner.setLayoutData(gd_fadeInSpinner);
+		fadeInSpinner.setBounds(131, 203, 106, 29);
 		fadeInSpinner.setMaximum(2000);
 		fadeInSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));		
 		fadeInSpinner.setSelection(fadeIn);
@@ -214,16 +229,15 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeFadeOutSelection()
 	{
-		int fadeOut = controlChangeFadeData.getFadeOutValue();
+		int fadeOut = controlChangeFadeToggleData.getFadeOutValue();
 		
 		Label fadeOutLabel = new Label(this, SWT.NONE);
+		fadeOutLabel.setBounds(5, 242, 88, 19);
 		fadeOutLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		fadeOutLabel.setText("Fade Out");
 		
 		fadeOutSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_fadeOutSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_fadeOutSpinner.widthHint = 100;
-		fadeOutSpinner.setLayoutData(gd_fadeOutSpinner);
+		fadeOutSpinner.setBounds(131, 237, 106, 29);
 		fadeOutSpinner.setMaximum(2000);
 		fadeOutSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));	
 		fadeOutSpinner.setSelection(fadeOut);
@@ -231,9 +245,9 @@ public class ControlChangeFadeComponent extends Composite {
 	}
 	
 	private void setMaximumValues(int value){
-		int start = controlChangeFadeData.getStartValue();
-		int hold = controlChangeFadeData.getHoldValue();
-		int end = controlChangeFadeData.getEndValue();
+		int start = controlChangeFadeToggleData.getStartValue();
+		int hold = controlChangeFadeToggleData.getHoldValue();
+		int end = controlChangeFadeToggleData.getEndValue();
 		
 		if(value == 1){			
 			startValueSpinner.setMaximum(16383);
@@ -244,13 +258,13 @@ public class ControlChangeFadeComponent extends Composite {
 				start *= 129;
 				hold *= 129;
 				end *= 129;
-				
+			
 				resolutionChanged = false;
 			}
 			
-			controlChangeFadeData.setStartValue(start);
-			controlChangeFadeData.setHoldValue(hold);
-			controlChangeFadeData.setEndValue(end);
+			controlChangeFadeToggleData.setStartValue(start);
+			controlChangeFadeToggleData.setHoldValue(hold);
+			controlChangeFadeToggleData.setEndValue(end);
 			
 			startValueSpinner.setSelection(start);
 			holdValueSpinner.setSelection(hold);
@@ -265,13 +279,13 @@ public class ControlChangeFadeComponent extends Composite {
 				start %= 128;
 				hold %= 128;
 				end %= 128;
-				
+			
 				resolutionChanged = false;
 			}
 		
-			controlChangeFadeData.setStartValue(start);
-			controlChangeFadeData.setHoldValue(hold);
-			controlChangeFadeData.setEndValue(end);
+			controlChangeFadeToggleData.setStartValue(start);
+			controlChangeFadeToggleData.setHoldValue(hold);
+			controlChangeFadeToggleData.setEndValue(end);
 			
 			startValueSpinner.setSelection(start);
 			holdValueSpinner.setSelection(hold);
@@ -281,13 +295,13 @@ public class ControlChangeFadeComponent extends Composite {
 	
 	private void initializeDataStructure(DataStructure data){
 		try{
-		 if(data instanceof ControlChangeFadeData){
-			 controlChangeFadeData = (ControlChangeFadeData)data;
+		 if(data instanceof ControlChangeFadeToggleData){
+			 controlChangeFadeToggleData = (ControlChangeFadeToggleData)data;
 		 }	else {
 			 System.err.println("Wrong DataStructure Component suplied");
 		 }			
 		} catch (Exception e){
-			System.err.println("Error ocurred in ControlChangeFadeComponent");
+			System.err.println("Error ocurred in ControlChangeFadeToggleComponent::setDataStructure");
 			e.printStackTrace(System.err);
 		}		
 	}
@@ -300,7 +314,7 @@ public class ControlChangeFadeComponent extends Composite {
 				   "\n");
 		
 		try{
-			internalValues = internalValues + "\n" + controlChangeFadeData.toString();
+			internalValues = internalValues + "\n" + controlChangeFadeToggleData.toString();
 		} catch(Exception e){
 			System.err.println();
 		}
@@ -314,7 +328,15 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = channelSpinner.getSelection();
-				controlChangeFadeData.setChannel(value);
+				controlChangeFadeToggleData.setChannel(value);
+			}
+		});
+		
+		toggleCombo.addSelectionListener(new SelectionAdapter(){
+			@Override
+			public void widgetSelected(SelectionEvent event){
+				int value = toggleCombo.getSelectionIndex();
+				controlChangeFadeToggleData.setToggleOption(value);
 			}
 		});
 		
@@ -324,7 +346,7 @@ public class ControlChangeFadeComponent extends Composite {
 				int value = resolutionCombo.getSelectionIndex();
 				resolutionChanged = true;
 				setMaximumValues(value);
-				controlChangeFadeData.setResolutionOption(value);
+				controlChangeFadeToggleData.setResolutionOption(value);
 			}
 		});
 		
@@ -332,7 +354,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = controlChangeSpinner.getSelection();
-				controlChangeFadeData.setControlChangeNumber(value);
+				controlChangeFadeToggleData.setControlChangeNumber(value);
 			}
 		});
 		
@@ -340,7 +362,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = startValueSpinner.getSelection();
-				controlChangeFadeData.setStartValue(value);
+				controlChangeFadeToggleData.setStartValue(value);
 			}
 		});
 		
@@ -348,7 +370,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = holdValueSpinner.getSelection();
-				controlChangeFadeData.setHoldValue(value);
+				controlChangeFadeToggleData.setHoldValue(value);
 			}
 		});
 		
@@ -356,7 +378,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = endValueSpinner.getSelection();
-				controlChangeFadeData.setEndValue(value);
+				controlChangeFadeToggleData.setEndValue(value);
 			}
 		});
 		
@@ -364,7 +386,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = fadeInSpinner.getSelection();
-				controlChangeFadeData.setFadeInValue(value);
+				controlChangeFadeToggleData.setFadeInValue(value);
 			}
 		});
 		
@@ -372,7 +394,7 @@ public class ControlChangeFadeComponent extends Composite {
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = fadeOutSpinner.getSelection();
-				controlChangeFadeData.setFadeOutValue(value);
+				controlChangeFadeToggleData.setFadeOutValue(value);
 			}
 		});
 	}

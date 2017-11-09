@@ -14,6 +14,7 @@ public class DisabledControllerComponent extends Composite {
 	
 	private DisabledControllerData disabledControllerData;
 	private String name = new String("DisabledControllerComponent");
+	
 	/**
 	 * Create the composite.
 	 * @param parent
@@ -24,12 +25,16 @@ public class DisabledControllerComponent extends Composite {
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 14, SWT.BOLD));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
+		setBounds(146, 35, 490, 355);
 		setLayout(null);
 		
-		Label disabledLabel = new Label(this, SWT.NONE);
-		disabledLabel.setBounds(6, 10, 88, 19);
-		disabledLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		disabledLabel.setText("Disabled");
+		
+		
+		
+		Label lblNewLabel = new Label(this, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		lblNewLabel.setBounds(10, 10, 128, 15);
+		lblNewLabel.setText("Disabled");
 	}
 
 	public DisabledControllerComponent(Composite parent, int style, DataStructure data){
@@ -37,12 +42,13 @@ public class DisabledControllerComponent extends Composite {
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 14, SWT.BOLD));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
+		setBounds(146, 35, 490, 355);
 		setLayout(null);
 		
-		Label disabledLabel = new Label(this, SWT.NONE);
-		disabledLabel.setBounds(6, 10, 88, 19);
-		disabledLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		disabledLabel.setText("Disabled");
+		Label lblNewLabel = new Label(this, SWT.NONE);
+		lblNewLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		lblNewLabel.setBounds(10, 10, 128, 15);
+		lblNewLabel.setText("Disabled");
 		
 		initializeDataStructure(data);
 	}

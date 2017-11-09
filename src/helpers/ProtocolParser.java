@@ -86,7 +86,6 @@ public class ProtocolParser {
 	
 	private void parseProtocol(int data[]){
 		int optionId = data[1];
-		
 		switch(optionId){
 			case 0xE0:
 				programChangeParser(data);
@@ -109,7 +108,19 @@ public class ProtocolParser {
 			case 0xE6:
 				controlChangeFadeParser(data);
 				break;
+			case 0xE7:
+				noteVelocityToggleParser(data);
+				break;
+			case 0xE8:
+				noteControlChangeToggleParser(data);
+				break;
+			case 0xE9:
+				controlChangeToggleParser(data);
+				break;
 			case 0xEA:
+				controlChangeFadeToggleParser(data);
+				break;
+			case 0xEE:
 				sceneDataParser(data);
 				/* 
 				 * After the Scene the controller 
@@ -117,7 +128,10 @@ public class ProtocolParser {
 				 * by the controller data.
 				 */
 				parseStartBlock(); 
-				break;			
+				break;	
+			case 0xEF:
+				disabledControllerParser(data);
+				break;
 		}
 	}
 	
@@ -155,7 +169,6 @@ public class ProtocolParser {
 			byteArray.add((byte)0x00);
 			index++;
 		}
-
 	}
 	
 	private void noteControlChangeParser(int data[]){
@@ -193,9 +206,7 @@ public class ProtocolParser {
 		
 			for(int i=13; i< 16; i++){
 				byteArray.add((byte)0x00);
-			}
-		
-			
+			}		
 		}	
 	}
 	
@@ -343,12 +354,199 @@ public class ProtocolParser {
 		}
 	}
 	
+	private void noteVelocityToggleParser(int data[]){
+		int size = data.length; 
+		int index = 0;
+		
+		while(index < size){
+			byte tmp = (byte)data[index];
+			byteArray.add(tmp);
+			index++;
+		}
+		
+		while(index < 16){
+			byteArray.add((byte)0x00);
+			index++;
+		}
+	}
+	
+	private void noteControlChangeToggleParser(int data[]){
+		int resolution = data[6];
+		
+		if(resolution == 0){
+			int size = data.length; 
+			int index = 0;
+			
+			while(index < size){
+				byte tmp = (byte)data[index];	
+				byteArray.add(tmp);
+				index++;
+			}			
+			
+			while(index < 16){
+				byteArray.add((byte) 0x00);
+				index++;
+			}
+		} else {		
+			for(int i=0; i < 8; i++){
+				byte tmp = (byte)data[i];
+				byteArray.add(tmp);
+			}
+			
+			for(int i=8; i<10; i++){
+				int value = data[i] << 1;
+				byte msb = (byte)((value >> 8) & 0x7F);
+				byte lsb = (byte)((value >> 1) & 0x7F);
+				byteArray.add(msb);
+				byteArray.add(lsb);
+			}
+					
+			byteArray.add((byte)0xFF);
+		
+			for(int i=13; i< 16; i++){
+				byteArray.add((byte)0x00);
+			}		
+		}	
+	}
+	
+	private void controlChangeToggleParser(int data[]){
+		int resolution = data[4];
+		
+		if(resolution == 0){
+			
+			for(int i=0; i<data.length; i++){
+				System.err.println(data[i]);
+			}
+			
+			
+			int index = 0;
+			while(index < data.length){
+				byte tmp = (byte)data[index];
+				byteArray.add(tmp);
+				index++;
+			}
+			
+			
+			while(index < 16){
+				byteArray.add((byte)0x00);
+				index++;
+			}
+			
+		} else{	
+			
+			for(int i=0; i<6;i++){
+				byte tmp = (byte)data[i];
+				byteArray.add(tmp);
+			}
+			
+			for(int i=6; i<8; i++){
+				int value = data[i] << 1;
+				byte msb = (byte)((value >> 8) & 0x7F);
+				byte lsb = (byte)((value >> 1) & 0x7F);
+				byteArray.add(msb);
+				byteArray.add(lsb);
+			}
+			
+
+			byteArray.add((byte)0xFF); //end Bit
+			
+			for(int i=11; i<16; i++){
+				byteArray.add((byte)0);
+			}				
+		}	
+	}
+	
+	private void controlChangeFadeToggleParser(int data[]){
+		int resolution = data[4]; 
+		
+		if(resolution == 0){
+			
+			int toggleOption = data[2] << 1;
+			int resolutionOption = data[4];
+			int option = resolutionOption + toggleOption;
+			
+			byteArray.add((byte)data[0]); //0 start Bit
+			byteArray.add((byte)data[1]); //1 Option ID
+			byteArray.add((byte)data[3]); //2 channel
+			byteArray.add((byte)option);  //3 Option - Toggle+Resolution 
+			byteArray.add((byte)data[5]); //4 Control Change Number
+			
+			
+			for(int i=6; i<9; i++)
+			{
+				byte tmp = (byte)data[i];
+				byteArray.add(tmp);
+			}
+			
+			for(int i=9; i<11; i++){
+				int value = data[i];
+				byte msb = (byte)((value >> 8) & 0xFF);
+				byte lsb = (byte)(value & 0xFF);
+				byteArray.add(msb);
+				byteArray.add(lsb);
+			}
+			
+			byteArray.add((byte)0xFF);
+			
+			for(int i=13; i<16; i++){
+				byteArray.add((byte)0x00);
+			}
+			
+		} else {
+			int toggleOption = data[2] << 1;
+			int resolutionOption = data[4];
+			int option = resolutionOption + toggleOption;
+			
+			byteArray.add((byte)data[0]); //0 start Bit
+			byteArray.add((byte)data[1]); //1 Option ID
+			byteArray.add((byte)data[3]); //2 channel
+			byteArray.add((byte)option);  //3 Option - Toggle+Resolution 
+			byteArray.add((byte)data[5]); //4 Control Change Number
+			
+			
+			for(int i=6; i<9; i++){
+				int value = data[i] << 1;
+				byte msb = (byte)((value >> 8) & 0x7F); 
+				byte lsb = (byte)((value >> 1) & 0x7F);
+				byteArray.add(msb);
+				byteArray.add(lsb);
+			}
+			
+			for(int i=9; i<11; i++){
+				int value = data[i];
+				byte msb = (byte)((value >> 8) & 0xFF);
+				byte lsb = (byte)(value & 0xFF);
+				byteArray.add(msb);
+				byteArray.add(lsb);
+			}
+			byteArray.add((byte)0xFF);			
+		}
+	}
+		
 	private void sceneDataParser(int[] data){
 		for(int i=0; i<data.length; i++){
 			byte tmp = (byte)data[i];
 			byteArray.add(tmp);
 		}
 	}
+	
+	private void disabledControllerParser(int data[]){
+		int size = data.length; 
+		int index = 0;
+		
+		while(index < size){
+			byte tmp = (byte)data[index];
+			byteArray.add(tmp);
+			index++;
+		}
+		
+		while(index < 16){
+			byteArray.add((byte)0x00);
+			index++;
+		}
+	}
+	
+	
 	
 	private void parseCyclicRedundancyCheck(){
 		byte crcBuffer[] = new byte[4];

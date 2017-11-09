@@ -65,7 +65,8 @@ public class Switch extends Controller {
 		try{
 			this.data = data;
 		} catch (Exception e){
-			System.err.println("Error ocurred setting DataStructure");
+			System.err.println("Error ocurred in Switch::setDataStructure");
+			System.err.println("while setting DataStructure");
 			e.printStackTrace(System.err);
 		}
 	}
@@ -105,29 +106,7 @@ public class Switch extends Controller {
 		}
 	}
 	
-	@Override 
-	public String toString(){
-		String internalValues = new String("/**Controller**/" + 
-											"\n" + 
-											name + 
-											"\n");
-		
-		String dataString = new String();
-		
-		try{
-			for(int i=0; i < data.length; i++){
-				dataString += data[i].toString() + "\n";
-			}
-		}	catch(Exception e){
-				System.err.println("Error ocurred in Potentiometer");
-				e.printStackTrace(System.err);
-		}
-				
-		internalValues += dataString;
-		
-		return internalValues;
-	}
-	
+
 	@Override
 	public Composite getGuiComponent(Composite parent, int componentIndex){
 		Composite guiComponent = null;
@@ -161,5 +140,28 @@ public class Switch extends Controller {
 			e.printStackTrace(System.err);
 		}	
 		return guiComponent;
+	}
+	
+	@Override 
+	public String toString(){
+		String internalValues = new String("/**Controller**/" + 
+											"\n" + 
+											name + 
+											"\n");
+		
+		String dataString = new String();
+		
+		try{
+			for(int i=0; i < data.length; i++){
+				dataString += data[i].toString() + "\n";
+			}
+		}	catch(Exception e){
+				System.err.println("Error ocurred in Switch");
+				e.printStackTrace(System.err);
+		}
+				
+		internalValues += dataString;
+		
+		return internalValues;
 	}
 }

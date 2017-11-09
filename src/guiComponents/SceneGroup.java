@@ -3,6 +3,7 @@ package guiComponents;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -35,9 +36,11 @@ public class SceneGroup extends Group {
 	private Label activeControlLabel;
 	
 	private String name;
+	
 	private Composite thisObject; /** Object Reference for callback listeners **/
 	private Composite composite;
-	
+	private Rectangle compositeBounds;
+	private Label switchLabel;
 	
 	public SceneGroup(Composite parent, String name) {
 		super(parent, SWT.NONE);
@@ -71,12 +74,22 @@ public class SceneGroup extends Group {
 		 */
 		
 		Label separatorLabel = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-		separatorLabel.setBounds(10, 22, 758, 18);
+		separatorLabel.setBounds(10, 24, 798, 18);
 		separatorLabel.setText("line");
+		
+		compositeBounds = new Rectangle(146, 35, 490, 355);
+
 		
 	    composite = new Composite(this, SWT.NONE);
 	    composite.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		composite.setBounds(146, 42, 450, 354);
+		composite.setBounds(compositeBounds);
+		
+		switchLabel = new Label(this, SWT.NONE);
+		switchLabel.setText("Switch");
+		switchLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
+		switchLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
+		switchLabel.setBounds(440, 12, 160, 18);
+		switchLabel.setVisible(false);
 		
 		//System.out.println(this.toString());
 	}
@@ -86,28 +99,7 @@ public class SceneGroup extends Group {
 		// Disable the check that prevents subclassing of SWT components
 	}
 	
-	/**
-	 *  Redraw Screen when a new Gui is selected 
-	 */
 	
-	public void redrawGuiComponent(){
-		try{
-			 String[] tmpOptionList = controllerArray[currentIndex].getOptionList();
-			 int tmpCurrentOption = controllerArray[currentIndex].getOptionIndex();
-			 
-			 composite.dispose();
-			 composite = controllerArray[currentIndex].getGuiComponent(thisObject, tmpCurrentOption);
-			 composite.setBounds(146, 34, 450, 280);
-			 composite.redraw();
-			 
-			 
-			 actionCombo.setItems(tmpOptionList);
-			 actionCombo.select(tmpCurrentOption);	
-		} catch(Exception e){
-			System.err.println("Error Ocurred while redrawing Gui Component");
-			e.printStackTrace(System.err);
-		}
-	}
 	
 	/**
 	 *  OptionList for all the controllers 
@@ -125,13 +117,13 @@ public class SceneGroup extends Group {
 		Label controlLabel = new Label(this, SWT.NONE);
 		controlLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
 		controlLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		controlLabel.setBounds(10, 10, 97, 18);
+		controlLabel.setBounds(10, 12, 97, 18);
 		controlLabel.setText("Controls");
 		
 		activeControlLabel = new Label(this, SWT.NONE);
 		activeControlLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		activeControlLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
-		activeControlLabel.setBounds(154, 10, 223, 18);
+		activeControlLabel.setBounds(154, 12, 280, 18);
 		activeControlLabel.setText("Undefined");		
 	}
 	
@@ -145,7 +137,7 @@ public class SceneGroup extends Group {
 		actionCombo = new Combo(this, SWT.NONE);
 		actionCombo.setFont(SWTResourceManager.getFont("Noto Mono", 9, SWT.NORMAL));
 		actionCombo.setToolTipText("Select Action");
-		actionCombo.setBounds(586, 42, 182, 26);
+		actionCombo.setBounds(637, 42, 171, 26);
 		//actionCombo.setItems();
 		//actionCombo.remove(0);
 		
@@ -153,7 +145,7 @@ public class SceneGroup extends Group {
 		actionLabel.setText("Action");
 		actionLabel.setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
 		actionLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
-		actionLabel.setBounds(586, 10, 97, 18);
+		actionLabel.setBounds(637, 12, 97, 18);
 	}
 	
 	public DataContainer getDataContainer(){
@@ -210,9 +202,9 @@ public class SceneGroup extends Group {
 				
 				 for (int i = 0; i < index.length; i++) {
 			          currentIndex = index[i];			        
-			          activeControlLabel.setText(selected[i] + " Options");		          
+			          activeControlLabel.setText(selected[i] + " Parameters");		          
 			     }		
-				
+				 
 				 redrawGuiComponent();				
 			}
 		});
@@ -224,65 +216,77 @@ public class SceneGroup extends Group {
 				//System.out.println("Selection Ocurred");							
 				controllerArray[currentIndex].setOptionIndex(selectedIndex);
 					
-				
-				/** 
-				  *  Get gui component from the Controller object 	
-				  *	as soon as one of the options change
-				  * Object Reference holds the reference of 
-				  * the parent class
-				  *
-				  */
-				
-					try{
-							composite.dispose(); //free memory 
-							composite = controllerArray[currentIndex].getGuiComponent(thisObject, selectedIndex);
-							composite.setBounds(146, 34, 450, 300);
-							composite.redraw();
-					
-						} 
-					 catch (Exception e) {
-						System.err.println("Error ocurred");
-						e.printStackTrace(System.err);
-					}
-					//System.out.println("Current Option Index " + selectedIndex);
-				}										
+				redrawGuiComponent();			
+			}									
 		});
 	}
 
-
+	public void redrawGuiComponent(){
+		try{
+			
+			 String[] tmpOptionList = controllerArray[currentIndex].getOptionList();
+			 int tmpCurrentOption = controllerArray[currentIndex].getOptionIndex();
+			 
+			 composite.dispose();
+			 composite = controllerArray[currentIndex].getGuiComponent(thisObject, tmpCurrentOption);
+			 composite.setBounds(compositeBounds);
+			 composite.redraw();
+			 
+			 
+			 actionCombo.setItems(tmpOptionList);
+			 actionCombo.select(tmpCurrentOption);	
+			 
+			 if(currentIndex == 27 || currentIndex == 28){
+				 if(tmpCurrentOption >= 1 && tmpCurrentOption < 4){
+					 switchLabel.setVisible(true);
+				 } else {
+					 switchLabel.setVisible(false);
+				 }
+			 }
+				 
+		} catch(Exception e){
+			System.err.println("Error Ocurred while redrawing Gui Component");
+			e.printStackTrace(System.err);
+		}
+	}
 	
 	
 	private void initializeControllerArray(){
 		try{
 			controllerArray[0] = new Scene("Scene");
-			controllerArray[1] = new RibbonController("Ribbon 1");
-			controllerArray[2] = new RibbonController("Ribbon 2");
-			controllerArray[3] = new PotentioMeter("Head Pot 1");
-			controllerArray[4] = new PotentioMeter("Head Pot 2");
-			controllerArray[5] = new PotentioMeter("Head Pot 3");
-			controllerArray[6] = new PotentioMeter("Head Pot 4");
-			controllerArray[7] = new PotentioMeter("Head Pot 5");
-			controllerArray[8] = new PotentioMeter("Head Pot 6");
-			controllerArray[9] = new PotentioMeter("Body Pot 1");
-			controllerArray[10] = new PotentioMeter("Body Pot 2");
-			controllerArray[11] = new PotentioMeter("Tremelo Pot");
-			controllerArray[12] = new Pressure("Pressure 1");
-			controllerArray[13] = new Pressure("Pressure 2");
-			controllerArray[14] = new Pressure("Pressure 3");
-			controllerArray[15] = new PotentioMeter("Joystick X");
-			controllerArray[16] = new PotentioMeter("Joystick Y");
+
+			controllerArray[1] = new PotentioMeter("Head Pot 1");
+			controllerArray[2] = new PotentioMeter("Head Pot 2");
+			controllerArray[3] = new PotentioMeter("Head Pot 3");
+			controllerArray[4] = new PotentioMeter("Head Pot 4");
+			controllerArray[5] = new PotentioMeter("Head Pot 5");
+			controllerArray[6] = new PotentioMeter("Head Pot 6");
+	
+			controllerArray[7] = new RibbonController("Ribbon 1");
+			controllerArray[8] = new RibbonController("Ribbon 2");
+
+			controllerArray[9] = new Pressure("Pressure 1");
+			controllerArray[10] = new Pressure("Pressure 2");
+			controllerArray[11] = new Pressure("Pressure 3");
+			controllerArray[12] = new PotentioMeter("Body Pot 1");
+			controllerArray[13] = new PotentioMeter("Body Pot 2");
+			controllerArray[14] = new PotentioMeter("Body Pot 3");
+			controllerArray[15] = new PotentioMeter("Joy Stick X");
+			controllerArray[16] = new PotentioMeter("Joy Stick Y");
+			
 			controllerArray[17] = new Switch("Neck Switch 1");
 			controllerArray[18] = new Switch("Neck Switch 2");
 			controllerArray[19] = new Switch("Neck Switch 3");
 			controllerArray[20] = new Switch("Neck Switch 4");
 			controllerArray[21] = new Switch("Neck Switch 5");
 			controllerArray[22] = new Switch("Neck Switch 6");
-			controllerArray[23] = new Switch("Tab Switch 1");
-			controllerArray[24] = new Switch("Tab Switch 2");
+			
+			controllerArray[23] = new Switch("Tab Up Switch");
+			controllerArray[24] = new Switch("Tab Down Switch");
 			controllerArray[25] = new Switch("Start Switch");
 			controllerArray[26] = new Switch("Select Switch");
-			controllerArray[27] = new Switch("Foot Switch");
-			controllerArray[28] = new Switch("Joystick Switch");
+			controllerArray[27] = new ToggleSwitch("Pot Switch");
+			controllerArray[28] = new ToggleSwitch("joy Stick Switch");
 			
 			for(int i=0; i<controllerArray.length; i++){
 				controls[i] = new String(controllerArray[i].getName());
@@ -294,6 +298,5 @@ public class SceneGroup extends Group {
 			e.printStackTrace(System.err);
 		}
 	}
-
 }
 

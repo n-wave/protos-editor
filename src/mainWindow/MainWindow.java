@@ -7,11 +7,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.wb.swt.SWTResourceManager;
+
+
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.ToolItem;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 
@@ -19,12 +19,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-//import java.io.PrintWriter;
 
 import guiComponents.SceneGroup;
 import helpers.Preset;
 import helpers.ProtocolParser;
-import helpers.TestParser;
+//import helpers.TestParser;
 import serialCommunication.SerialBlocksGHMC;
 import serialCommunication.SerialCommunication;
 
@@ -42,7 +41,7 @@ public class MainWindow {
 	private ToolItem openItem;
 	private ToolItem saveItem;
 	private ToolItem uploadItem;
-	private ToolItem printItem;
+	//private ToolItem printItem;
 	
 	private TabFolder tabFolder;
 	private String[] sceneTabNames = {
@@ -98,11 +97,11 @@ public class MainWindow {
 	 * Create contents of the window.
 	 */
 	private void createContents() {
-		shell = new Shell();
+		shell = new Shell(display, SWT.CLOSE | SWT.MIN | SWT.MAX | SWT.TITLE);
 		shell.setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_DARK_SHADOW));
-		shell.setSize(800, 500);
+		shell.setSize(837, 507);
 
-		shell.setText("Guitar Hero Editor : " + preset.getName());
+		shell.setText("Protos Editor : " + preset.getName());
 		
 		initializeToolBar();
 		initializeTabFolder();	
@@ -112,8 +111,9 @@ public class MainWindow {
 	}
 	
 	private void initializeToolBar(){
+		
 		ToolBar toolBar = new ToolBar(shell, SWT.FLAT | SWT.RIGHT);
-		toolBar.setBounds(0, 0, 798, 28);
+		toolBar.setBounds(0, 0, 836, 28);
 		
 		newItem = new ToolItem(toolBar, SWT.NONE);	
 		newItem.setWidth(20);
@@ -129,8 +129,9 @@ public class MainWindow {
 		uploadItem = new ToolItem(toolBar, SWT.NONE);
 		uploadItem.setText("upload");
 		
-		printItem = new ToolItem(toolBar, SWT.NONE);
-		printItem.setText("print");
+		/* Only used for debugging */
+		//printItem = new ToolItem(toolBar, SWT.NONE);
+		//printItem.setText("print");
 	}
 	
 	
@@ -140,7 +141,7 @@ public class MainWindow {
 		tabFolder.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
 		tabFolder.setBackground(SWTResourceManager.getColor(SWT.COLOR_GRAY));
 		tabFolder.setForeground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
-		tabFolder.setBounds(10, 34, 780, 435);
+		tabFolder.setBounds(5, 33, 821, 438);
 		
 		try{
 			for(int i=0; i < scenes.length; i++){
@@ -169,11 +170,28 @@ public class MainWindow {
 				controllerValues += scenes[i].toString() + "\n"; 
 			}
 		} catch(Exception e){
-			System.err.println("Error ocurred while gathering values from scenes");
+			System.err.println("Error ocurred while gathering values from the scenes");
 			e.printStackTrace(System.err);
 		}
 		
 		return controllerValues;		
+	}
+	
+	public String getFileNameWithoutExtension(String filename){
+		String name = new String();
+		String result[];
+		String extension = new String(".protos");
+		
+		try{
+			result = filename.split(extension);
+			name = result[0];
+		} catch(Exception e){
+			System.err.println("Error Occurred in MainWindow::getFileNameWithExtension");
+			e.printStackTrace(System.err);
+		}
+
+		
+		return name;
 	}
 	
 	private void initializeListeners(){
@@ -183,10 +201,43 @@ public class MainWindow {
 				MessageBox newDialogWindow = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
 				newDialogWindow.setMessage("Discard Changes?");
 				
-				int rc = newDialogWindow.open();
+				int windowResult = newDialogWindow.open();
 				
-				if(rc == SWT.YES){
-					System.out.println("New Item");
+				if(windowResult == SWT.YES){
+					int index = tabFolder.getSelectionIndex();
+					/* load up empty preset located in the .default folder */
+					
+					String path = new String (".default/default.protos");
+					
+					if(path != null){								
+						try {
+							
+							preset = new Preset("default");
+									
+							FileInputStream fis = new FileInputStream(path);
+							ObjectInputStream in = new ObjectInputStream(fis);
+							
+							Object obj = in.readObject();
+							in.close();
+							
+							if(obj instanceof Preset){
+								preset = (Preset)obj;
+							}
+							
+						} catch(Exception e){
+							System.err.println("Error occurred while loading default preset");
+							e.printStackTrace(System.err);
+						}
+					
+						for(int i=0; i < numberOfScenes; i++){
+							scenes[i].setDataContainer(preset.getDataContainer(i));
+						}
+						
+						String presetName = getFileNameWithoutExtension(preset.getName());
+						shell.setText("Protos Editor : " + presetName);
+						scenes[index].redrawGuiComponent();							
+					}
+					//scenes[index].redrawGuiComponent();
 				}
 			}
 		});
@@ -197,7 +248,7 @@ public class MainWindow {
 				FileDialog openDialogWindow = new FileDialog(shell, SWT.OPEN);
 				
 				String[] filterNames = new String[]{"Presets", "All files (*)"};
-				String[] filterExtensions = new String[]{"*.preset", "*"};
+				String[] filterExtensions = new String[]{"*.protos", "*"};
 				
 				openDialogWindow.setFilterNames(filterNames);
 				openDialogWindow.setFilterExtensions(filterExtensions);
@@ -205,7 +256,6 @@ public class MainWindow {
 				String path = openDialogWindow.open();
 
 				if(path != null){
-					System.out.println(path);
 					try{
 
 						int index = tabFolder.getSelectionIndex();
@@ -228,8 +278,11 @@ public class MainWindow {
 							scenes[i].setDataContainer(preset.getDataContainer(i));
 						}
 						
-						scenes[index].redrawGuiComponent();
-						shell.setText("Guitar Hero Editor : " + preset.getName());
+						String presetName = getFileNameWithoutExtension(preset.getName());
+						shell.setText("Protos Editor : " + presetName);
+						scenes[index].redrawGuiComponent();	
+						
+						System.out.println("Successfully Loaded : " + preset.getName());
 						
 					} catch(Exception e){
 						System.err.println("Error ocurred while loading file :" + path);
@@ -247,7 +300,7 @@ public class MainWindow {
 				FileDialog saveDialogWindow = new FileDialog(shell, SWT.SAVE);
 				
 				String[] filterNames = new String[]{"Presets", "All files (*)"};
-				String[] filterExtensions = new String[]{"*.preset", "*"};
+				String[] filterExtensions = new String[]{"*.protos", "*"};
 				
 				saveDialogWindow.setFilterNames(filterNames);
 				saveDialogWindow.setFilterExtensions(filterExtensions);
@@ -275,10 +328,11 @@ public class MainWindow {
 						out.writeObject(preset);
 						out.close();
 				
-
-						scenes[index].redrawGuiComponent();
-						shell.setText("Guitar Hero Editor : " + preset.getName());
+						String presetName = getFileNameWithoutExtension(preset.getName());
+						shell.setText("Protos Editor : " + presetName);
+						scenes[index].redrawGuiComponent();	
 						
+						System.out.println("Successfully Saved : " + preset.getName());
 					} catch(Exception e){
 						System.err.println("Error occured while saving file :" + path);
 						e.printStackTrace(System.err);
@@ -310,6 +364,17 @@ public class MainWindow {
 		public void widgetSelected(SelectionEvent event){
 			String result = new String("");
 			
+			MessageBox newDialogWindow = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+			newDialogWindow.setMessage("Upload to controller?");
+			
+			int windowResult = newDialogWindow.open();
+
+			/* If Upload isn't required exit */
+			
+			if(windowResult == SWT.NO){
+				return;
+			}
+					
 			try{
 				ProtocolParser parser = new ProtocolParser();
 								
@@ -322,8 +387,9 @@ public class MainWindow {
 				SerialBlocksGHMC serialBlocks = new SerialBlocksGHMC();
 				SerialCommunication serial = new SerialCommunication(serialBlocks);
 				Thread thread = new Thread(serial);
-				thread.setDaemon(true);
+				//thread.setDaemon(true);
 						
+
 				/* 
 				 * Get all the dataStructures from the scenes and 
 				 * place them in the preset Object
@@ -340,107 +406,168 @@ public class MainWindow {
 				dataBuffer = parser.getByteArray();
 				
 				
-				/* Get serialPorts if available */
-				String commPort;
-				String serialPorts[] = serial.getPorts();
+				/** 
+				 * Get serialPorts if available
+				 * Create a dialog window if the 
+				 * commport isn't available. And 
+				 * Query for continuation 
+				 * 
+				 **/
 				
-				if(serialPorts.length > 0){
-					commPort = serialPorts[0];
-					System.out.println("COMM port : " + commPort + "\n");
-				} else {
-					commPort = new String("Not Available");
-				}
+				boolean comportAvailable = false;					
+				String serialPorts[];
 				
-				System.out.println(serial.openPort(commPort));
+				do{
+					serialPorts = serial.getPorts();																	
+					
+					if(serialPorts.length > 0){			
+						comportAvailable = true;
+					} else {
+						
+						MessageBox errorDialog = new MessageBox(shell, SWT.ICON_WARNING | SWT.YES | SWT.NO);
+						errorDialog.setMessage("Could not open device! Try again?");
+						
+						int errorResult = errorDialog.open();
+						
+						
+						if(errorResult == SWT.YES){
+								
+						} else if(errorResult == SWT.NO){
+							return;
+						} 
+					}
+					
+					
+				}while(!comportAvailable);	
+		
+					boolean success = false;
+					boolean run = false;
 				
-				if(!thread.isAlive()){
-					thread.start();
-				}
+					String commPort = serialPorts[0];
+					serial.openPort(commPort);
+					
+					System.out.println(commPort);
 				
-				serial.enablePolling();
+					if(!thread.isAlive()){
+						thread.start();
+						System.out.println("Thread Started");
+
+					}
+					serial.enablePolling();
 				
-				messageBuffer = serialBlocks.getWriteBlock("STARTC");
+					messageBuffer = serialBlocks.getWriteBlock("STARTC");
 				
-				System.out.println("Sending STARTC");
-				serial.writeDataToCommunicationPort(messageBuffer);
-				Thread.sleep(150);
-				state = serial.getState(); 
-				result = serialBlocks.getString(state);
+					System.out.println("Sending STARTC");
+					serial.writeDataToCommunicationPort(messageBuffer);
+					Thread.sleep(50);
+					state = serial.getState(); 
+					result = serialBlocks.getString(state);
 				
 				/** ID01GH has been found start sending the data**/ 
-				if(state == 1){
-					System.out.println("Current State : " + result);
-					Thread.sleep(100);
-					System.out.println("Starting Upload");
-					
-					boolean run = true;
-					int byteArrayIndex = 0;
-					int nrOfUploads = 62; // 1984/32 = 62;
-					
-					
-					do{
-						byte writeBuffer[] = new byte [32]; //Holds write Buffer						
-						System.out.println("Byte Blocks left: " + nrOfUploads);
+					if(state == 1){
 						
-						if(state == 1 || state == 2){
-							for(int i=0; i<32; i++){
-								writeBuffer[i] = dataBuffer[byteArrayIndex];
-								byteArrayIndex++;
+						/* ToDo ProgressDialog Bar */		
+						
+						System.out.println("Current State : " + result);
+						Thread.sleep(50);
+						System.out.println("Starting Upload");
+					 
+
+					    run = true;
+						int byteArrayIndex = 0;
+						int nrOfUploads = 62; // 1984/32 = 62;
+										
+						do{													
+							byte writeBuffer[] = new byte [32]; //Holds write Buffer						
+							System.out.println("Byte Blocks left: " + nrOfUploads);
+						
+							if(state == 1 || state == 2){
+								for(int i=0; i<32; i++){
+									writeBuffer[i] = dataBuffer[byteArrayIndex];
+									byteArrayIndex++;
+								}
+								
+								serial.writeDataToCommunicationPort(writeBuffer);
+								Thread.sleep(50);
 							}
-							
-							serial.writeDataToCommunicationPort(writeBuffer);
-							Thread.sleep(100);
-						}
+
+										
+							if(nrOfUploads == 1){
+								run = false;
+								messageBuffer = serialBlocks.getWriteBlock("CALCRC");
+								serial.writeDataToCommunicationPort(messageBuffer);
+								Thread.sleep(50);
+								state = serial.getState();
+								serial.writeDataToCommunicationPort(messageBuffer);
+								state = serial.getState();
+								
+								System.out.print("\r");
+								System.out.print(byteArrayIndex);
+								System.out.print(" bytes transferred");
+								System.out.print("\r");
+
+								/* Sending the data and the internal CRC 
+							 	* Calculation has been a succes. Upload
+							 	* has Succeeded 
+							 	*/
+					
+							}
 						
-						state = serial.getState();
+							nrOfUploads--;
+						} while(run);
+					}
+				
+					
+					/* run and catch success or failed message */
+					run = true;
+					 while(run){
+						 state = serial.getState();
 						
-						if(nrOfUploads == 1){
-							run = false;
-							messageBuffer = serialBlocks.getWriteBlock("CALCRC");
-							serial.writeDataToCommunicationPort(messageBuffer);
-							Thread.sleep(250);
-							state = serial.getState();
-							System.out.println(state);
-							serial.writeDataToCommunicationPort(messageBuffer);
-							state = serial.getState();
-							System.out.println(byteArrayIndex);
-							/* Sending the data and the internal CRC 
-							 * Calculation has been a succes. Upload
-							 * has Succeeded 
-							 */
+						 Thread.sleep(50);
+						 
 							if(state == 3){
 								run = false; 
-								System.out.println("Data has been Upload succesfully");
-							} else if(state == -1){
-								System.out.println("Upload has failed Try Again");
-								run = false;
-							}						
-						}
-						
-						nrOfUploads--;
-					} while(run);
+								success = true;
+								System.out.println("Data transferred succesfully to device");
+							} 	else if(state == -1){
+									run = false;
+									success = false;
+									System.out.println("Data transfer has failed, try again");
+							}						 
+					 }
 					
-				}
+					serial.disablePolling();
+					Thread.sleep(100);
+					serial.closePort(commPort);
+					Thread.sleep(100);
+					thread.interrupt();
 				
-				serial.disablePolling();
-				Thread.sleep(250);
-				serial.closePort(commPort);
-				Thread.sleep(250);
-				thread.interrupt();
-				
-			} catch(Exception e){
-				System.err.println("Error ocurred in MainWindow while trying to upload preset");
-				e.printStackTrace(System.err);
-			}		
-		}	
+					MessageBox uploadComplete = new MessageBox(shell, SWT.NONE);
+					
+					if(success){
+						uploadComplete.setMessage("Data transferred succesfully to device.");
+					} else {
+						uploadComplete.setMessage("Data transfer has failed, try again");
+					}
+						
+					uploadComplete.open();
+					
+					
+				} catch(Exception e){
+					System.err.println("Error ocurred in MainWindow while trying to upload preset");
+					e.printStackTrace(System.err);
+				}		
+			}
+		
 	});	
 	
 	/** Print contents of dataStructures in preset to the console **/
-	
+/*	
 	printItem.addSelectionListener(new SelectionAdapter(){
 		@Override
 		public void widgetSelected(SelectionEvent event){
-			try{
+			try{	
+				
 				String test = new String("**All Presets Data** \n" + 
 						 "--------------------" + "\n");
 				
@@ -461,28 +588,6 @@ public class MainWindow {
 			}
 		}
 	});
-	
-	shell.addDisposeListener(new DisposeListener(){
-		@Override
-		public void widgetDisposed(DisposeEvent event) {
-			
-			/**
-			try{
-				serial.disablePolling();
-				serial.closePort(" ");
-			
-				if(thread.isAlive()){
-					thread.interrupt();
-				}
-	
-				System.out.println("Program Closed");
-
-
-				} 	catch(Exception e){
-					e.printStackTrace(System.err);
-				}
-			**/
-		}
-	});
+*/
   } //end initializeListeners	
 }

@@ -4,7 +4,7 @@ public class SceneData extends DataStructure {
 
 	private static final long serialVersionUID = 7718932706279050664L;
 	
-	final private int ID = 0xEA;
+	final private int ID = 0xEE;
 	
 	private int data[] = {
 							0xF0, 	//Start Byte

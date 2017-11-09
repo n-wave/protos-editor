@@ -8,47 +8,44 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Spinner;
-import org.eclipse.swt.widgets.Button;
 
 import dataContainers.DataStructure;
-import dataContainers.NoteVelocityData;
+import dataContainers.NoteVelocityToggleData;
 import helpers.MidiPitchConverter;
+import org.eclipse.swt.widgets.Combo;
 
 
-public class NoteComponent extends Composite {
+public class NoteToggleComponent extends Composite {
 
-	/**
-	 * Create the composite.
-	 * @param parent
-	 * @param style
-	 */
 	private Spinner channelSpinner;
 	private Spinner pitchSpinner;
 	private Spinner velocitySpinner;
-	
 	private Label activePitchLabel;
-	private Button velocityCheckButton;
 	
-	private NoteVelocityData noteVelocityData;
+	private NoteVelocityToggleData noteVelocityToggleData;
+	private Label toggleLabel;
+	private Combo toggleCombo;
+	
 	String name = new String("NoteComponent");
 	
 	private MidiPitchConverter midiPitchConverter = new MidiPitchConverter();
 	
-	public NoteComponent(Composite parent, int style) {
+	public NoteToggleComponent(Composite parent, int style) {
 		super(parent, SWT.NONE);
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.NORMAL));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		setLayout(new GridLayout(3, false));
+		setBounds(146, 42, 555, 354);
 		
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializePitchSelection();
 		initializeVelocitySelection();
 		
 		initializeListeners();
 	}
 
-	public NoteComponent(Composite parent, int style, DataStructure data) {
+	public NoteToggleComponent(Composite parent, int style, DataStructure data) {
 		super(parent, SWT.NONE);
 		
 		initializeDataStructure(data);
@@ -59,6 +56,7 @@ public class NoteComponent extends Composite {
 		setLayout(new GridLayout(3, false));
 		
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializePitchSelection();
 		initializeVelocitySelection();
 		
@@ -74,13 +72,16 @@ public class NoteComponent extends Composite {
 	}
 
 	private void initializeChannelSelection(){
-		int channel = noteVelocityData.getChannel();
+		int channel = noteVelocityToggleData.getChannel();
+		setLayout(null);
 		
 		Label channelLabel = new Label(this, SWT.NONE);
+		channelLabel.setBounds(5, 10, 77, 19);
 		channelLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		channelLabel.setText("Channel");
 
 		channelSpinner = new Spinner(this, SWT.BORDER);
+		channelSpinner.setBounds(98, 5, 88, 29);
 		channelSpinner.setMaximum(16);
 		channelSpinner.setMinimum(1);
 		channelSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
@@ -88,49 +89,65 @@ public class NoteComponent extends Composite {
 
 	}
 	
+	private void initializeToggleSelection(){
+		
+		int toggleValue = noteVelocityToggleData.getToggleOption();
+		
+		toggleLabel = new Label(this, SWT.NONE);
+		toggleLabel.setBounds(294, 10, 69, 19);
+		toggleLabel.setText("Option");
+		toggleLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		
+		toggleCombo = new Combo(this, SWT.NONE);
+		toggleCombo.setBounds(365, 8, 106, 24);
+		toggleCombo.setToolTipText("Switch Behaviour");
+		toggleCombo.setItems(new String[] {"Momentary", "Toggle"});
+		toggleCombo.select(toggleValue);
+	}
+	
 	private void initializePitchSelection(){
-		int pitch = noteVelocityData.getPitch();
+		int pitch = noteVelocityToggleData.getPitch();
 		String note = midiPitchConverter.convertPitch(pitch);
 		
-		new Label(this, SWT.NONE);
 		Label pitchLabel = new Label(this, SWT.NONE);
+		pitchLabel.setBounds(5, 44, 55, 19);
 		pitchLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		pitchLabel.setText("Pitch");
 		
 		pitchSpinner =  new Spinner(this, SWT.BORDER);
+		pitchSpinner.setBounds(98, 39, 88, 29);
 		pitchSpinner.setToolTipText("MIDI Pitch");
 		pitchSpinner.setMaximum(127);
 		pitchSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		pitchSpinner.setSelection(pitch);
 
 		activePitchLabel = new Label(this, SWT.NONE);
+		activePitchLabel.setBounds(191, 44, 55, 19);
 		activePitchLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		activePitchLabel.setText(note);
 	}
 	
 	private void initializeVelocitySelection(){
-		int velocity = noteVelocityData.getVelocity();
-		//Wboolean option = noteVelocityData.getVelocityOption();
+		int velocity = noteVelocityToggleData.getVelocity();
+		
 
 		Label velocityLabel = new Label(this, SWT.NONE);
+		velocityLabel.setBounds(5, 78, 88, 19);
 		velocityLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		velocityLabel.setText("Velocity");
 								
 		velocitySpinner = new Spinner(this, SWT.BORDER);
+		velocitySpinner.setBounds(98, 73, 88, 29);
 		velocitySpinner.setToolTipText("Static Velocity/Max Velocity");
 		velocitySpinner.setMaximum(127);
 		velocitySpinner.setSelection(velocity);
 		velocitySpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		
-		velocityCheckButton = new Button(this, SWT.CHECK);
-		velocityCheckButton.setFont(SWTResourceManager.getFont("Noto Sans", 12, SWT.NORMAL));
-		velocityCheckButton.setToolTipText("Link Velocity to Sensor Input");
 	}
 	
 	private void initializeDataStructure(DataStructure data){
 		try{
-		 if(data instanceof NoteVelocityData){
-			 noteVelocityData = (NoteVelocityData)data;
+		 if(data instanceof NoteVelocityToggleData){
+			 noteVelocityToggleData = (NoteVelocityToggleData)data;
 		 }	else {
 			 System.err.println("Wrong DataStructure Component suplied");
 		 }			
@@ -140,11 +157,7 @@ public class NoteComponent extends Composite {
 		}		
 	}	
 	
-	public void enableLinkOption(boolean option){
-		velocityCheckButton.setEnabled(option);
-		velocityCheckButton.setVisible(option);
-	}
-	
+
 	public String toString(){
 		String internalValues = new String("/** GuiComponent **/" +
 				"\n" +
@@ -152,7 +165,7 @@ public class NoteComponent extends Composite {
 				"\n");
 
 		try{
-			internalValues = internalValues + "\n" + noteVelocityData.toString();
+			internalValues = internalValues + "\n" + noteVelocityToggleData.toString();
 		} catch(Exception e){
 			System.err.println();
 		}
@@ -166,7 +179,15 @@ public class NoteComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = channelSpinner.getSelection();
-				noteVelocityData.setChannel(value);
+				noteVelocityToggleData.setChannel(value);
+			}
+		});
+		
+		toggleCombo.addSelectionListener(new SelectionAdapter(){
+			@Override 
+			public void widgetSelected(SelectionEvent event){
+				int value = toggleCombo.getSelectionIndex();
+				noteVelocityToggleData.setToggleOption(value);
 			}
 		});
 		
@@ -175,26 +196,11 @@ public class NoteComponent extends Composite {
 			public void widgetSelected(SelectionEvent event){
 				int value = pitchSpinner.getSelection();
 				String note = midiPitchConverter.convertPitch(value);
-				noteVelocityData.setPitch(value);
+				noteVelocityToggleData.setPitch(value);
 				activePitchLabel.setText(note);
 			}
 		});
 		
-		velocitySpinner.addSelectionListener(new SelectionAdapter(){
-			@Override 
-			public void widgetSelected(SelectionEvent event){
-				int value = velocitySpinner.getSelection();
-				noteVelocityData.setVelocity(value);
-			}
-		});
 		
-		
-		velocityCheckButton.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e){
-				boolean value = velocityCheckButton.getSelection();
-				noteVelocityData.setVelocityOption(value);
-			}
-		});
 	}
 }

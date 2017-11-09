@@ -3,17 +3,16 @@ package guiComponents;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.wb.swt.SWTResourceManager;
-import dataContainers.ControlChangeData;
+import dataContainers.ControlChangeToggleData;
 import dataContainers.DataStructure;
 
-public class ControlChangeComponent extends Composite {
+public class ControlChangeToggleComponent extends Composite {
 
 	/**
 	 * Create the composite.
@@ -21,29 +20,31 @@ public class ControlChangeComponent extends Composite {
 	 * @param style
 	 */
 
-	private ControlChangeData controlChangeData;
+	private ControlChangeToggleData ControlChangeToggleData;
+	private Label ToggleLabel;
+	private Combo toggleCombo;
 	
 	private Spinner channelSpinner;
 	private Combo resolutionCombo;
 	private Spinner controlChangeSpinner;
-	private Spinner topValueSpinner;
-	private Spinner bottomValueSpinner;
+	private Spinner onValueSpinner;
+	private Spinner offValueSpinner;
 	
-	private Label topValueLabel;
-	private Label bottomValueLabel;
+	private Label onValueLabel;
+	private Label offValueLabel;
 	
 	private String name = new String("ControlChangeComponent");
 	private boolean resolutionChanged = false;
+
 	
-	
-	public ControlChangeComponent(Composite parent, int style) {
+	public ControlChangeToggleComponent(Composite parent, int style) {
 		super(parent, style);
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 14, SWT.BOLD));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_LIST_BACKGROUND));
-		setLayout(new GridLayout(2, false));
 
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
 		initializeTopValueSelection();
@@ -52,7 +53,7 @@ public class ControlChangeComponent extends Composite {
 		initializeListeners();
 	}
 
-	public ControlChangeComponent(Composite parent, int style, DataStructure data) {
+	public ControlChangeToggleComponent(Composite parent, int style, DataStructure data) {
 		super(parent, style);
 		
 		initializeDataStructure(data);
@@ -63,6 +64,7 @@ public class ControlChangeComponent extends Composite {
 		setLayout(new GridLayout(2, false));
 
 		initializeChannelSelection();
+		initializeToggleSelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
 		initializeTopValueSelection();
@@ -70,7 +72,7 @@ public class ControlChangeComponent extends Composite {
 		
 		initializeListeners();
 
-		int value = controlChangeData.getResolutionOption();
+		int value = ControlChangeToggleData.getResolutionOption();
 		setMaximumValues(value);
 		//System.out.println(this.toString());
 		
@@ -90,52 +92,65 @@ public class ControlChangeComponent extends Composite {
 	
 	private void initializeChannelSelection()
 	{
-		int channel = controlChangeData.getChannel();
+		int channel = ControlChangeToggleData.getChannel();
+		setLayout(null);
 		
 		Label ChannelLabel = new Label(this, SWT.NONE);
+		ChannelLabel.setBounds(5, 10, 77, 19);
 		ChannelLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		ChannelLabel.setText("Channel");
 	    channelSpinner = new Spinner(this, SWT.BORDER);
-	    GridData gd_channelSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-	    gd_channelSpinner.widthHint = 100;
-	    channelSpinner.setLayoutData(gd_channelSpinner);
+	    channelSpinner.setBounds(120, 5, 106, 29);
 		channelSpinner.setMaximum(16);
 		channelSpinner.setMinimum(1);
 		channelSpinner.setSelection(channel);
 		channelSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 	}
 	
+	private void initializeToggleSelection(){
+		
+		ToggleLabel = new Label(this, SWT.NONE);
+		ToggleLabel.setBounds(294, 10, 69, 19);
+		ToggleLabel.setText("Option");
+		ToggleLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		
+		toggleCombo = new Combo(this, SWT.NONE);
+		toggleCombo.setBounds(365, 8, 106, 24);
+		toggleCombo.setToolTipText("Switch Behaviour");
+		toggleCombo.setTextDirection(3355443);
+		toggleCombo.setItems(new String[] {"Momentary", "Toggle"});
+		toggleCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		toggleCombo.select(0);
+	}
+	
 	private void initializeResolutionSelection()
 	{
-		int resolution = controlChangeData.getResolutionOption();
+		int resolution = ControlChangeToggleData.getResolutionOption();
 		
 		Label resolutionLabel = new Label(this, SWT.NONE);
+		resolutionLabel.setBounds(5, 41, 110, 19);
 		resolutionLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		resolutionLabel.setText("Resolution");
 		
 	    resolutionCombo = new Combo(this, SWT.NONE);
+	    resolutionCombo.setBounds(120, 39, 107, 23);
 		resolutionCombo.setTextDirection(3355443);
 		resolutionCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		resolutionCombo.setItems(new String[] {"7 Bit", "14 Bit"});
-		resolutionCombo.select(resolution);		
-		
-		GridData gd_resolutionCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_resolutionCombo.widthHint = 106;
-		resolutionCombo.setLayoutData(gd_resolutionCombo);
+		resolutionCombo.select(resolution);
 	}
 	
 	private void initializeControlChangeNumberSelection()
 	{
-		int number = controlChangeData.getControlChangeNumber();
+		int number = ControlChangeToggleData.getControlChangeNumber();
 		
 		Label controlChangeLabel = new Label(this, SWT.NONE);
+		controlChangeLabel.setBounds(5, 72, 99, 19);
 		controlChangeLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		controlChangeLabel.setText("CC Number");
 		
 	    controlChangeSpinner = new Spinner(this, SWT.BORDER);
-	    GridData gd_controlChangeSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-	    gd_controlChangeSpinner.widthHint = 100;
-	    controlChangeSpinner.setLayoutData(gd_controlChangeSpinner);
+	    controlChangeSpinner.setBounds(120, 67, 106, 29);
 	    controlChangeSpinner.setMaximum(127);
 		controlChangeSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		controlChangeSpinner.setSelection(number);
@@ -143,90 +158,86 @@ public class ControlChangeComponent extends Composite {
 	
 	private void initializeTopValueSelection()
 	{
-		int topValue = controlChangeData.getTopValue();
+		int onValue = ControlChangeToggleData.getOnValue();
 		
-	    topValueLabel = new Label(this, SWT.NONE);
-		topValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		topValueLabel.setText("Top Value");
+	    onValueLabel = new Label(this, SWT.NONE);
+	    onValueLabel.setBounds(5, 106, 88, 19);
+		onValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		onValueLabel.setText("On Value");
 		
-		topValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_topValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_topValueSpinner.widthHint = 100;
-		topValueSpinner.setLayoutData(gd_topValueSpinner);
-		topValueSpinner.setMaximum(127);
-		topValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		topValueSpinner.setSelection(topValue);
+		onValueSpinner = new Spinner(this, SWT.BORDER);
+		onValueSpinner.setBounds(120, 101, 106, 29);
+		onValueSpinner.setMaximum(127);
+		onValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		onValueSpinner.setSelection(onValue);
 	}
 	
 	private void initializeBottomValueSelection()
-	{	
-		int bottomValue = controlChangeData.getBottomValue();
+	{
+		int offValue = ControlChangeToggleData.getOffValue();
 	
-	    bottomValueLabel = new Label(this, SWT.NONE);
-		bottomValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		bottomValueLabel.setText("Bottom Value");
+	    offValueLabel = new Label(this, SWT.NONE);
+	    offValueLabel.setBounds(5, 140, 99, 19);
+		offValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		offValueLabel.setText("Off Value");
 		
-		bottomValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_bottomValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_bottomValueSpinner.widthHint = 100;
-		bottomValueSpinner.setLayoutData(gd_bottomValueSpinner);
-		bottomValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		bottomValueSpinner.setMaximum(127);
-		bottomValueSpinner.setSelection(bottomValue);
-	}
-	
-	public void changeLabelText(String labelOne, String labelTwo){
-		topValueLabel.setText(labelOne);
-		bottomValueLabel.setText(labelTwo);
+		offValueSpinner = new Spinner(this, SWT.BORDER);
+		offValueSpinner.setBounds(120, 135, 106, 29);
+		offValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		offValueSpinner.setMaximum(127);
+		offValueSpinner.setSelection(offValue);
 	}
 	
 	private void setMaximumValues(int value){
-		int top = controlChangeData.getTopValue();
-		int bottom = controlChangeData.getBottomValue();
+		int onValue = ControlChangeToggleData.getOnValue();
+		int offValue = ControlChangeToggleData.getOffValue();
 		
 		if(value == 1){	
 			
 			if(resolutionChanged){
-				top *= 129;
-				bottom *= 129;
+				onValue *= 129;
+				offValue *= 129;
+			
 				resolutionChanged = false;
 			}
 			
-			topValueSpinner.setMaximum(16383);
-			topValueSpinner.setMinimum(bottom+1);
+			onValueSpinner.setMaximum(16383);
+			onValueSpinner.setMinimum(offValue+1);
 			
-			bottomValueSpinner.setMaximum(top-1);
+			offValueSpinner.setMaximum(onValue-1);
 			
-			controlChangeData.setTopValue(top);
-			controlChangeData.setBottomValue(bottom);
+			ControlChangeToggleData.setOnValue(onValue);
+			ControlChangeToggleData.setOffValue(offValue);
 			
-			topValueSpinner.setSelection(top);
-			bottomValueSpinner.setSelection(bottom);
+			onValueSpinner.setSelection(onValue);
+			offValueSpinner.setSelection(offValue);
 			
 		} else {		
+			
 			if(resolutionChanged){
-				top %= 128;
-				bottom %= 128;
+				onValue %= 128;
+				offValue %= 128;
+			
 				resolutionChanged = false;
 			}
 			
-			topValueSpinner.setMaximum(127);
+			onValueSpinner.setMaximum(127);
 			
-			topValueSpinner.setMinimum(bottom+1);		
-			bottomValueSpinner.setMaximum(top-1);
+			onValueSpinner.setMinimum(offValue+1);		
+			offValueSpinner.setMaximum(onValue-1);
 			
-			controlChangeData.setTopValue(top);
-			controlChangeData.setBottomValue(bottom);
+			ControlChangeToggleData.setOnValue(onValue);
+			ControlChangeToggleData.setOffValue(offValue);
 			
-			topValueSpinner.setSelection(top);
-			bottomValueSpinner.setSelection(bottom);
+			onValueSpinner.setSelection(onValue);
+			offValueSpinner.setSelection(offValue);
 		}
 	}
 
 	private void initializeDataStructure(DataStructure data){
 		try{
-		 if(data instanceof ControlChangeData){
-			 controlChangeData = (ControlChangeData)data;
+		 if(data instanceof ControlChangeToggleData){
+			 ControlChangeToggleData = (ControlChangeToggleData)data;
 		 }	else {
 			 System.err.println("Wrong DataStructure Object suplied in ControlChangeComponent::initializeDataStructure(DataStructure)");
 		 }			
@@ -235,16 +246,6 @@ public class ControlChangeComponent extends Composite {
 			e.printStackTrace(System.err);
 		}		
 	}
-	/** 
-	 * 
-	 * channelSpinner
-	 * controlChangeSpinner
-	 * resolutionCombo
-	 * topValueSpinner
-	 * bottomValueSpinner
-	 * 
-	 */
-
 	
 	@Override 
 	public String toString(){
@@ -254,7 +255,7 @@ public class ControlChangeComponent extends Composite {
 											"\n");
 			
 		try{
-			internalValues += "\n" + controlChangeData.toString();
+			internalValues += "\n" + ControlChangeToggleData.toString();
 		} catch(Exception e){
 			System.err.println("Error ocurred in ControlChangeComponent");
 			e.printStackTrace(System.err);
@@ -266,11 +267,18 @@ public class ControlChangeComponent extends Composite {
 	
 	private void initializeListeners(){
 		channelSpinner.addSelectionListener(new SelectionAdapter(){
-			
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = channelSpinner.getSelection();
-				controlChangeData.setChannel(value);
+				ControlChangeToggleData.setChannel(value);
+			}
+		});
+		
+		toggleCombo.addSelectionListener(new SelectionAdapter(){
+			@Override 
+			public void widgetSelected(SelectionEvent event){
+				int value = toggleCombo.getSelectionIndex();
+				ControlChangeToggleData.setToggleOption(value);
 			}
 		});
 		
@@ -278,7 +286,7 @@ public class ControlChangeComponent extends Composite {
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = controlChangeSpinner.getSelection();
-				controlChangeData.setControlChangeNumber(value);
+				ControlChangeToggleData.setControlChangeNumber(value);
 			}
 		});
 		
@@ -288,26 +296,26 @@ public class ControlChangeComponent extends Composite {
 				int value = resolutionCombo.getSelectionIndex();
 				resolutionChanged = true;
 				setMaximumValues(value);
-				controlChangeData.setResolutionOption(value);
+				ControlChangeToggleData.setResolutionOption(value);
 			}
 		});
 		
-		topValueSpinner.addSelectionListener(new SelectionAdapter(){
+		onValueSpinner.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent event){
-				int value = topValueSpinner.getSelection();			
-				controlChangeData.setTopValue(value);				
-				bottomValueSpinner.setMaximum(value-1);
+				int value = onValueSpinner.getSelection();			
+				ControlChangeToggleData.setOnValue(value);				
+				offValueSpinner.setMaximum(value-1);
 				
 			}
 		});
 		
-		bottomValueSpinner.addSelectionListener(new SelectionAdapter(){
+		offValueSpinner.addSelectionListener(new SelectionAdapter(){
 			@Override 
 			public void widgetSelected(SelectionEvent event){
-				int value = bottomValueSpinner.getSelection();
-				controlChangeData.setBottomValue(value);
-				topValueSpinner.setMinimum(value+1);
+				int value = offValueSpinner.getSelection();
+				ControlChangeToggleData.setOffValue(value);
+				onValueSpinner.setMinimum(value+1);
 			}
 		});
 	}

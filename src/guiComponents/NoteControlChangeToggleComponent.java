@@ -1,29 +1,24 @@
 package guiComponents;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.wb.swt.SWTResourceManager;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 
 import dataContainers.DataStructure;
-import dataContainers.NoteControlChangeData;
+import dataContainers.NoteControlChangeToggleData;
 import helpers.MidiPitchConverter;
 
+public class NoteControlChangeToggleComponent extends Composite {
 
-public class NoteControlChangeComponent extends Composite {
-
-	/**
-	 * Create the composite.
-	 * @param parent
-	 * @param style
-	 */
+	private Label toggleLabel;
+	private Combo toggleCombo;
+	
 	
 	private Spinner channelSpinner;
 	private Spinner pitchSpinner;
@@ -31,39 +26,39 @@ public class NoteControlChangeComponent extends Composite {
 	
 	private Combo resolutionCombo;
 	private Spinner controlChangeSpinner;
-	private Spinner topValueSpinner;
-	private Spinner bottomValueSpinner;
+	private Spinner onValueSpinner;
+	private Spinner offValueSpinner;
 	
 	private Label activePitchLabel;
-	private Button velocityCheckButton;
 	
-	private NoteControlChangeData noteControlChangeData = new NoteControlChangeData();
+	private NoteControlChangeToggleData NoteControlChangeToggleData = new NoteControlChangeToggleData();
 	private MidiPitchConverter midiPitchConverter = new MidiPitchConverter();
 	
 	String name = new String("NoteControlChangeComponent");
 	
 	private boolean resolutionChanged = false;
 	
-	public NoteControlChangeComponent(Composite parent, int style) {
+	public NoteControlChangeToggleComponent(Composite parent, int style) {
 		super(parent, style);
 		setBackground(SWTResourceManager.getColor(SWT.COLOR_WIDGET_FOREGROUND));
 		setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		setForeground(SWTResourceManager.getColor(SWT.COLOR_WHITE));
-		setLayout(new GridLayout(3, false));
 		
+	
 		initializeChannelSelection();
+		initializeToggleOption();
 		initializePitchSelection();
 		initializeVelocitySelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
-		initializeTopValueSelection();
-		initializeBottomValueSelection();
+		initializeOnValueSelection();
+		initializeOffValueSelection();
 		
 		initializeListeners();
 	}
 
 	
-	public NoteControlChangeComponent(Composite parent, int style, DataStructure data) {
+	public NoteControlChangeToggleComponent(Composite parent, int style, DataStructure data) {
 		super(parent, style);
 		
 		initializeDataStructure(data);
@@ -74,17 +69,18 @@ public class NoteControlChangeComponent extends Composite {
 		setLayout(new GridLayout(3, false));
 		
 		initializeChannelSelection();
+		initializeToggleOption();
 		initializePitchSelection();
 		initializeVelocitySelection();
 		initializeResolutionSelection();
 		initializeControlChangeNumberSelection();
-		initializeTopValueSelection();
-		initializeBottomValueSelection();
+		initializeOnValueSelection();
+		initializeOffValueSelection();
 		
 		initializeListeners();
 		
 		//Set MaximumValues
-		 int value = noteControlChangeData.getResolutionOption();
+		 int value = NoteControlChangeToggleData.getResolutionOption();
 		 setMaximumValues(value);
 		//System.out.println(this.toString());
 	}
@@ -94,195 +90,202 @@ public class NoteControlChangeComponent extends Composite {
 		// Disable the check that prevents subclassing of SWT components
 	}
 	
+
+	
 	private void initializeChannelSelection(){
 		//NoteComponent	
-		int channel = noteControlChangeData.getChannel();
+		int channel = NoteControlChangeToggleData.getChannel();
+		setLayout(null);
 		
 		Label channelLabel = new Label(this, SWT.NONE);
+		channelLabel.setBounds(5, 10, 77, 19);
 		channelLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		channelLabel.setText("Channel");
 
 		channelSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_channelSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_channelSpinner.widthHint = 100;
-		channelSpinner.setLayoutData(gd_channelSpinner);
+		channelSpinner.setBounds(120, 5, 106, 29);
 		channelSpinner.setMaximum(16);
 		channelSpinner.setMinimum(1);
 		channelSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		channelSpinner.setSelection(channel);
 	}
 	
+	private void initializeToggleOption(){
+		
+		toggleLabel = new Label(this, SWT.NONE);
+		toggleLabel.setBounds(294, 10, 69, 19);
+		toggleLabel.setText("Option");
+		toggleLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		
+		toggleCombo = new Combo(this, SWT.NONE);
+		toggleCombo.setBounds(365, 8, 106, 24);
+		toggleCombo.setToolTipText("Switch Behaviour");
+		toggleCombo.setTextDirection(3355443);
+		toggleCombo.setItems(new String[] {"Momentary", "Toggle"});
+		toggleCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		toggleCombo.select(0);
+	}
+	
+	
 	private void initializePitchSelection(){
-		int pitch = noteControlChangeData.getPitch();
+		int pitch = NoteControlChangeToggleData.getPitch();
 		String note = midiPitchConverter.convertPitch(pitch);
 		
-		new Label(this, SWT.NONE);
+		
 		Label pitchLabel = new Label(this, SWT.NONE);
+		pitchLabel.setBounds(5, 44, 55, 19);
 		pitchLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		pitchLabel.setText("Pitch");
 		
 		pitchSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_pitchSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_pitchSpinner.widthHint = 100;
-		pitchSpinner.setLayoutData(gd_pitchSpinner);
+		pitchSpinner.setBounds(120, 39, 106, 29);
 		pitchSpinner.setMaximum(127);
 		pitchSpinner.setSelection(pitch);
 		pitchSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 
 		activePitchLabel = new Label(this, SWT.NONE);
+		activePitchLabel.setBounds(232, 44, 55, 19);
 		activePitchLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		activePitchLabel.setText("----");	
 		activePitchLabel.setText(note);	
 	}
 	
 	private void initializeVelocitySelection(){
-		int velocity = noteControlChangeData.getVelocity();
-		boolean option = noteControlChangeData.getVelocityOption();
+		int velocity = NoteControlChangeToggleData.getVelocity();
 		
 		Label lblLinkVelocity = new Label(this, SWT.NONE);
+		lblLinkVelocity.setBounds(5, 78, 88, 19);
 		lblLinkVelocity.setText("Velocity");
 		lblLinkVelocity.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 							
 		velocitySpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_velocitySpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_velocitySpinner.widthHint = 100;
-		velocitySpinner.setLayoutData(gd_velocitySpinner);
+		velocitySpinner.setBounds(120, 73, 106, 29);
 		velocitySpinner.setMaximum(127);
 		velocitySpinner.setSelection(velocity);
 		velocitySpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		
-		velocityCheckButton = new Button(this, SWT.CHECK);
-		velocityCheckButton.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		velocityCheckButton.setToolTipText("Static Velocity/Variable Velocity");
-		velocityCheckButton.setSelection(option);
 		
 	}
 	
 	private void initializeResolutionSelection()
 	{
-		int resolution = noteControlChangeData.getResolutionOption();
+		int resolution = NoteControlChangeToggleData.getResolutionOption();
 		
 		
 		Label resolutionLabel = new Label(this, SWT.NONE);
+		resolutionLabel.setBounds(5, 109, 110, 19);
 		resolutionLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		resolutionLabel.setText("Resolution");
 		
 		resolutionCombo = new Combo(this, SWT.NONE);
+		resolutionCombo.setBounds(120, 107, 107, 23);
 		resolutionCombo.setTextDirection(3355443);
 		resolutionCombo.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
 		resolutionCombo.setItems(new String[] {"7 Bit", "14 Bit"});
-		
-		GridData gd_resolutionCombo = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_resolutionCombo.widthHint = 106;
-		resolutionCombo.setLayoutData(gd_resolutionCombo);
 		resolutionCombo.select(resolution);
-		new Label(this, SWT.NONE);
 	}
 	
 	private void initializeControlChangeNumberSelection()
 	{
-		int number = noteControlChangeData.getControlChangeNumber();
+		int number = NoteControlChangeToggleData.getControlChangeNumber();
 		
 		Label controlChangeLabel = new Label(this, SWT.NONE);
+		controlChangeLabel.setBounds(5, 140, 99, 19);
 		controlChangeLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
 		controlChangeLabel.setText("CC Number");
 		
 		controlChangeSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_controlChangeSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_controlChangeSpinner.widthHint = 100;
-		controlChangeSpinner.setLayoutData(gd_controlChangeSpinner);
+		controlChangeSpinner.setBounds(120, 135, 106, 29);
 		controlChangeSpinner.setMaximum(127);
 		controlChangeSpinner.setSelection(number);
 		controlChangeSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		new Label(this, SWT.NONE);
+		
+
 	}
 	
-	private void initializeTopValueSelection()
+	private void initializeOnValueSelection()
 	{
-		int top = noteControlChangeData.getTopValue();
+		int onValue = NoteControlChangeToggleData.getOnValue();
 		
-		Label topValueLabel = new Label(this, SWT.NONE);
-		topValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		topValueLabel.setText("Top Value");
+		Label onValueLabel = new Label(this, SWT.NONE);
+		onValueLabel.setBounds(5, 174, 88, 19);
+		onValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		onValueLabel.setText("On Value");
 		
-		topValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_topValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_topValueSpinner.widthHint = 100;
-		topValueSpinner.setLayoutData(gd_topValueSpinner);
-		topValueSpinner.setMaximum(127);
-		topValueSpinner.setSelection(top);
-		topValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		new Label(this, SWT.NONE);
+		onValueSpinner = new Spinner(this, SWT.BORDER);
+		onValueSpinner.setBounds(120, 169, 106, 29);
+		onValueSpinner.setMaximum(127);
+		onValueSpinner.setSelection(onValue);
+		onValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		
+	
 	}
 	
-	private void initializeBottomValueSelection()
+	private void initializeOffValueSelection()
 	{
-		int bottom = noteControlChangeData.getBottomValue();
+		int offValue = NoteControlChangeToggleData.getOffValue();
 		
-		Label bottomValueLabel = new Label(this, SWT.NONE);
-		bottomValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
-		bottomValueLabel.setText("Bottom Value");
+		Label offValueLabel = new Label(this, SWT.NONE);
+		offValueLabel.setBounds(5, 208, 99, 19);
+		offValueLabel.setFont(SWTResourceManager.getFont("Noto Mono", 12, SWT.BOLD));
+		offValueLabel.setText("Off Value");
 		
-		bottomValueSpinner = new Spinner(this, SWT.BORDER);
-		GridData gd_bottomValueSpinner = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
-		gd_bottomValueSpinner.widthHint = 100;
-		bottomValueSpinner.setLayoutData(gd_bottomValueSpinner);
-		bottomValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
-		bottomValueSpinner.setMaximum(127);
-		bottomValueSpinner.setSelection(bottom);
-		new Label(this, SWT.NONE);
+		offValueSpinner = new Spinner(this, SWT.BORDER);
+		offValueSpinner.setBounds(120, 203, 106, 29);
+		offValueSpinner.setFont(SWTResourceManager.getFont("Noto Mono", 10, SWT.NORMAL));
+		offValueSpinner.setMaximum(127);
+		offValueSpinner.setSelection(offValue);
 	}
 	
 	private void setMaximumValues(int value){
-		int top = noteControlChangeData.getTopValue();
-		int bottom = noteControlChangeData.getBottomValue();
+		int onValue = NoteControlChangeToggleData.getOnValue();
+		int offValue = NoteControlChangeToggleData.getOffValue();
 		
 		if(value == 1){
-	
+			
 			if(resolutionChanged){
-				top *= 129;
-				bottom *= 129;
-		
+				onValue *= 129;
+				offValue *= 129;
+			
 				resolutionChanged = false;
 			}
 			
-			topValueSpinner.setMaximum(16383);
-			topValueSpinner.setMinimum(bottom+1);
+			onValueSpinner.setMaximum(16383);
+			onValueSpinner.setMinimum(offValue+1);
 			
-			bottomValueSpinner.setMaximum(top-1);
+			offValueSpinner.setMaximum(onValue-1);
 			
-			noteControlChangeData.setTopValue(top);
-			noteControlChangeData.setBottomValue(bottom);
+			NoteControlChangeToggleData.setOnValue(onValue);
+			NoteControlChangeToggleData.setOffValue(offValue);
 			
-			topValueSpinner.setSelection(top);
-			bottomValueSpinner.setSelection(bottom);
+			onValueSpinner.setSelection(onValue);
+			offValueSpinner.setSelection(offValue);
 		} else {
 			
 			if(resolutionChanged){
-				top %= 128;
-				bottom %= 128; 
+				onValue %= 128;
+				offValue %= 128; 
 			
 				resolutionChanged = false;
 			}
 			
-			topValueSpinner.setMaximum(127);
-			topValueSpinner.setMinimum(bottom+1);
+			onValueSpinner.setMaximum(127);
+			onValueSpinner.setMinimum(offValue+1);
 			
-			bottomValueSpinner.setMaximum(top-1);
+			offValueSpinner.setMaximum(onValue-1);
 						
-			noteControlChangeData.setTopValue(top);
-			noteControlChangeData.setBottomValue(bottom);
+			NoteControlChangeToggleData.setOnValue(onValue);
+			NoteControlChangeToggleData.setOffValue(offValue);
 			
-			topValueSpinner.setSelection(top);
-			bottomValueSpinner.setSelection(bottom);
+			onValueSpinner.setSelection(onValue);
+			offValueSpinner.setSelection(offValue);
 		}
 	}
 	
 	
 	private void initializeDataStructure(DataStructure data){
 		try{
-		 if(data instanceof NoteControlChangeData){
-			 noteControlChangeData = (NoteControlChangeData)data;
+		 if(data instanceof NoteControlChangeToggleData){
+			 NoteControlChangeToggleData = (NoteControlChangeToggleData)data;
 
 			 
 		 }	else {
@@ -301,7 +304,7 @@ public class NoteControlChangeComponent extends Composite {
 				"\n");
 
 		try{
-			internalValues = internalValues + "\n" + noteControlChangeData.toString();
+			internalValues = internalValues + "\n" + NoteControlChangeToggleData.toString();
 		} catch(Exception e){
 			System.err.println();
 		}
@@ -310,11 +313,19 @@ public class NoteControlChangeComponent extends Composite {
 	}
 	
 	private void initializeListeners(){
+		toggleCombo.addSelectionListener(new SelectionAdapter(){
+			@Override 
+			public void widgetSelected(SelectionEvent event){
+				int value = toggleCombo.getSelectionIndex();
+				NoteControlChangeToggleData.setToggleOption(value);
+			}
+		});
+		
 		channelSpinner.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent event){
 				int value = channelSpinner.getSelection();
-				noteControlChangeData.setChannel(value);
+				NoteControlChangeToggleData.setChannel(value);
 			}
 		});
 		
@@ -323,7 +334,7 @@ public class NoteControlChangeComponent extends Composite {
 			public void widgetSelected(SelectionEvent event){
 				int value = pitchSpinner.getSelection();
 				String note = midiPitchConverter.convertPitch(value);
-				noteControlChangeData.setPitch(value);
+				NoteControlChangeToggleData.setPitch(value);
 				activePitchLabel.setText(note);
 			}
 		});
@@ -332,15 +343,7 @@ public class NoteControlChangeComponent extends Composite {
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = velocitySpinner.getSelection();
-				noteControlChangeData.setVelocity(value);
-			}
-		});
-		
-		velocityCheckButton.addSelectionListener(new SelectionAdapter(){
-			@Override
-			public void widgetSelected(SelectionEvent event){
-				boolean value = velocityCheckButton.getSelection();
-				noteControlChangeData.setVelocityOption(value);
+				NoteControlChangeToggleData.setVelocity(value);
 			}
 		});
 		
@@ -350,7 +353,7 @@ public class NoteControlChangeComponent extends Composite {
 				int value = resolutionCombo.getSelectionIndex();
 				resolutionChanged = true;
 				setMaximumValues(value);				
-				noteControlChangeData.setResolutionOption(value);
+				NoteControlChangeToggleData.setResolutionOption(value);
 			}
 		});
 		
@@ -358,26 +361,29 @@ public class NoteControlChangeComponent extends Composite {
 			@Override 
 			public void widgetSelected(SelectionEvent event){
 				int value = controlChangeSpinner.getSelection();
-				noteControlChangeData.setControlChangeNumber(value);
+				NoteControlChangeToggleData.setControlChangeNumber(value);
 			}
 		});
 		
-		topValueSpinner.addSelectionListener(new SelectionAdapter(){
+		onValueSpinner.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent event){
-				int value = topValueSpinner.getSelection();
-				noteControlChangeData.setTopValue(value);
-				bottomValueSpinner.setMaximum(value-1);
+				int value = onValueSpinner.getSelection();
+				NoteControlChangeToggleData.setOnValue(value);
+				offValueSpinner.setMaximum(value-1);
 			}
 		});
 		
-		bottomValueSpinner.addSelectionListener(new SelectionAdapter(){
+		offValueSpinner.addSelectionListener(new SelectionAdapter(){
 			@Override
 			public void widgetSelected(SelectionEvent event){
-				int value = bottomValueSpinner.getSelection();
-				noteControlChangeData.setBottomValue(value);
-				topValueSpinner.setMinimum(value+1);
+				int value = offValueSpinner.getSelection();
+				NoteControlChangeToggleData.setOffValue(value);
+				onValueSpinner.setMinimum(value+1);
 			}
 		});
 	}
+	
+	
+
 }
