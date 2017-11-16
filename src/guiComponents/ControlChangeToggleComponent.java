@@ -201,11 +201,6 @@ public class ControlChangeToggleComponent extends Composite {
 				resolutionChanged = false;
 			}
 			
-			onValueSpinner.setMaximum(16383);
-			onValueSpinner.setMinimum(offValue+1);
-			
-			offValueSpinner.setMaximum(onValue-1);
-			
 			ControlChangeToggleData.setOnValue(onValue);
 			ControlChangeToggleData.setOffValue(offValue);
 			
@@ -220,11 +215,6 @@ public class ControlChangeToggleComponent extends Composite {
 			
 				resolutionChanged = false;
 			}
-			
-			onValueSpinner.setMaximum(127);
-			
-			onValueSpinner.setMinimum(offValue+1);		
-			offValueSpinner.setMaximum(onValue-1);
 			
 			ControlChangeToggleData.setOnValue(onValue);
 			ControlChangeToggleData.setOffValue(offValue);
@@ -295,7 +285,6 @@ public class ControlChangeToggleComponent extends Composite {
 			public void widgetSelected(SelectionEvent event){
 				int value = resolutionCombo.getSelectionIndex();
 				resolutionChanged = true;
-				setMaximumValues(value);
 				ControlChangeToggleData.setResolutionOption(value);
 			}
 		});
@@ -305,7 +294,6 @@ public class ControlChangeToggleComponent extends Composite {
 			public void widgetSelected(SelectionEvent event){
 				int value = onValueSpinner.getSelection();			
 				ControlChangeToggleData.setOnValue(value);				
-				offValueSpinner.setMaximum(value-1);
 				
 			}
 		});
@@ -315,7 +303,6 @@ public class ControlChangeToggleComponent extends Composite {
 			public void widgetSelected(SelectionEvent event){
 				int value = offValueSpinner.getSelection();
 				ControlChangeToggleData.setOffValue(value);
-				onValueSpinner.setMinimum(value+1);
 			}
 		});
 	}

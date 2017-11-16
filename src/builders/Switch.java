@@ -122,10 +122,10 @@ public class Switch extends Controller {
 					guiComponent = noteComponent;			
 					break;
 				case 2:
-					ControlChangeComponent controlChangeComponent = new ControlChangeComponent(parent, SWT.NONE, data[2]);
-					controlChangeComponent.changeLabelText("On Value", "Off Value");
+					ControlChangeSwitchComponent ControlChangeSwitchComponent = new ControlChangeSwitchComponent(parent, SWT.NONE, data[2]);
+					ControlChangeSwitchComponent.changeLabelText("On Value", "Off Value");
 
-					guiComponent = controlChangeComponent;						
+					guiComponent = ControlChangeSwitchComponent;						
 					break;
 				case 3:
 					guiComponent = new ControlChangeFadeComponent(parent, SWT.NONE, data[3]);
