@@ -1,5 +1,7 @@
 package helpers;
 
+/* Parse following the ISO standard C4 = 60 */
+
 public class MidiPitchConverter {
 
 	final private String[] pitchTable = {
@@ -19,7 +21,7 @@ public class MidiPitchConverter {
 	
 	public String convertPitch(int pitch){
 		int index = pitch % 12;
-		int octave = Math.floorDiv(pitch, 12) - 2;
+		int octave = Math.floorDiv(pitch, 12) - 1;
 		String note;
 		
 		if(octave >= 0){
